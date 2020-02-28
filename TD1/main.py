@@ -12,7 +12,7 @@ EPSILON = 0.01
 THETA = 0.5
 FILE_TRAIN_LIST = ['zero.txt', 'one.txt']
 
-PATH = os.getenv("TEST")
+PATH = os.getenv("PATH_TO_FILE")
 # PATH = "/data/LINUX/IA/ProjetPi/"
 
 def readFile(choice):

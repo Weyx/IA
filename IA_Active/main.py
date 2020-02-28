@@ -11,8 +11,8 @@ LAYER_SIZES = [48, 1]
 EPSILON = 0.01
 THETA = 0.5
 FILE_TRAIN_LIST = ['zero.txt', 'one.txt']
-
-PATH = os.getenv("TEST")
+FILE_TEST_LIST = ['zero1.txt']
+PATH = os.getenv("PATH_TO_FILE")
 # PATH = "/data/LINUX/IA/ProjetPi/"
 
 def readFile(choice):
@@ -54,7 +54,7 @@ def initWeightTab():
 def randFileChoice():
     return random.choice(FILE_TRAIN_LIST)
 
-# Get the potential of the output neuron
+# Get the potential of the output neuron ((sum 1..j of Wij * Xj) - Theta)
 def potentialOutputNeuronCalcul(weightTab, imageTab) :
     pot = 0
     i = LAYER_SIZES[1] - 1
@@ -72,35 +72,30 @@ def learn(weightTab, error, imageTab) :
 
     return weightTab
 
+def verifNumber(fileName, weightTab) :
+    loadFile = readFile(fileName)
+    image = loadFile.get('imageTab')
+    rightValueSaved = loadFile.get('value')
+
+    potOutput = potentialOutputNeuronCalcul(weightTab, image)
+    imageFound = -1
+    if (potOutput > 0) :
+        imageFound = 1
+    else :
+        imageFound = 0
+    error = int(rightValueSaved) - imageFound
+    return error
+
 def verif(weightTab):
-    # Zero check error
-    loadFileZero = readFile(FILE_TRAIN_LIST[0])
-    imageZero = loadFileZero.get('imageTab')
-    potOutputZero = potentialOutputNeuronCalcul(weightTab, imageZero)
-    imageFoundZero = -1
-    if (potOutputZero > 0) :
-        imageFoundZero = 1
-    else :
-        imageFoundZero = 0
-    errorZero = 0 - imageFoundZero
-
-    # One check error
-    loadFileOne = readFile(FILE_TRAIN_LIST[1])
-    imageOne = loadFileOne.get('imageTab')
-    potOutputOne = potentialOutputNeuronCalcul(weightTab, imageOne)
-    imageFoundOne = -1
-    if (potOutputOne > 0) :
-        imageFoundOne = 1
-    else :
-        imageFoundOne = 0
-    errorOne = 1 - imageFoundOne
-
-    print(errorZero, errorOne)
-    errorFinal = abs(errorZero) + abs(errorOne)
-
+    checkZeroIsRecognized = verifNumber(FILE_TRAIN_LIST[0], weightTab)
+    checkOneIsRecognized = verifNumber(FILE_TRAIN_LIST[1], weightTab)
+    print(checkZeroIsRecognized, checkOneIsRecognized)
+    errorFinal = abs(checkZeroIsRecognized) + abs(checkOneIsRecognized)
     return errorFinal
 
-
+def verifAfterTrain(weightTab):
+    checkZeroIsRecognized = verifNumber(FILE_TEST_LIST[0], weightTab)
+    print(checkZeroIsRecognized)
 
 def toBeCalled(weightTab, cpt, errorTab) :
     choiceFile = randFileChoice()
@@ -115,7 +110,7 @@ def toBeCalled(weightTab, cpt, errorTab) :
     potOutput = potentialOutputNeuronCalcul(weightTab, tab)
 
     imageFound = -1
-    if (potOutput >0) :
+    if (potOutput > 0) :
         imageFound = 1
     else :
         imageFound = 0
@@ -133,8 +128,8 @@ def toBeCalled(weightTab, cpt, errorTab) :
     else :
         print(cpt)
         print(errorTab)
-
-
+        # Call another 1 to see
+        verifAfterTrain(newWeight)
 
 if __name__ == "__main__":
     toBeCalled([], 0, [])
