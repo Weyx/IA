@@ -1,12 +1,19 @@
 import sys
 import argparse
 import random
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 LAYER_SIZES = [48, 1]
 EPSILON = 0.01
 THETA = 0.5
 FILE_TRAIN_LIST = ['zero.txt', 'one.txt']
-PATH = "/data/LINUX/IA/ProjetPi/"
+
+PATH = os.getenv("TEST")
+# PATH = "/data/LINUX/IA/ProjetPi/"
 
 def readFile(choice):
     imageTab = []
@@ -24,13 +31,13 @@ def readFile(choice):
             imageTab.append(0)
         if (c == '1' or c == '0'):
             value = c
-        
+
     dictionnary = dict()
     dictionnary['imageTab'] = imageTab
     dictionnary['value'] = value
     return dictionnary
-            
-def initWeightTab(): 
+
+def initWeightTab():
     weightTab = []
     # Init tab
     for i in range(LAYER_SIZES[1]):
@@ -57,8 +64,8 @@ def potentialOutputNeuronCalcul(weightTab, imageTab) :
 
     return (pot - THETA)
 
-# Learn phase -> training of the weight array 
-def learn(weightTab, error, imageTab) : 
+# Learn phase -> training of the weight array
+def learn(weightTab, error, imageTab) :
     for i in range(LAYER_SIZES[1]):
         for j in range(LAYER_SIZES[0]):
             weightTab[i][j] += (EPSILON * error * imageTab[j])
@@ -71,9 +78,9 @@ def verif(weightTab):
     imageZero = loadFileZero.get('imageTab')
     potOutputZero = potentialOutputNeuronCalcul(weightTab, imageZero)
     imageFoundZero = -1
-    if (potOutputZero > 0) : 
+    if (potOutputZero > 0) :
         imageFoundZero = 1
-    else : 
+    else :
         imageFoundZero = 0
     errorZero = 0 - imageFoundZero
 
@@ -82,9 +89,9 @@ def verif(weightTab):
     imageOne = loadFileOne.get('imageTab')
     potOutputOne = potentialOutputNeuronCalcul(weightTab, imageOne)
     imageFoundOne = -1
-    if (potOutputOne > 0) : 
+    if (potOutputOne > 0) :
         imageFoundOne = 1
-    else : 
+    else :
         imageFoundOne = 0
     errorOne = 1 - imageFoundOne
 
@@ -108,9 +115,9 @@ def toBeCalled(weightTab, cpt, errorTab) :
     potOutput = potentialOutputNeuronCalcul(weightTab, tab)
 
     imageFound = -1
-    if (potOutput >0) : 
+    if (potOutput >0) :
         imageFound = 1
-    else : 
+    else :
         imageFound = 0
 
     # 5 Error calcul
@@ -131,5 +138,3 @@ def toBeCalled(weightTab, cpt, errorTab) :
 
 if __name__ == "__main__":
     toBeCalled([], 0, [])
-
-    

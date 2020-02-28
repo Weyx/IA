@@ -1,15 +1,22 @@
 import sys
 import argparse
 import random
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 LAYER_SIZES = [48, 1]
 EPSILON = 0.01
 THETA = 0.5
 FILE_TRAIN_LIST = ['zero.txt', 'one.txt']
-PATH = "/data/LINUX/IA/ProjetPi/"
+
+PATH = os.getenv("TEST")
+# PATH = "/data/LINUX/IA/ProjetPi/"
 
 def readFile(choice):
-    tab = []
+    imageTab = []
     value = -1
     f= open(PATH+choice,"r")
     # Read file char by char
@@ -19,30 +26,29 @@ def readFile(choice):
             # print "End of file"
             break
         if (c == '*'):
-            tab.append(1)
+            imageTab.append(1)
         if (c == '.'):
-            tab.append(0)
+            imageTab.append(0)
         if (c == '1' or c == '0'):
             value = c
-        
+
     dictionnary = dict()
-    dictionnary['tab'] = tab
+    dictionnary['imageTab'] = imageTab
     dictionnary['value'] = value
     return dictionnary
-            
-def initWeightTab(): 
-    tab = []
+
+def initWeightTab():
+    weightTab = []
     # Init tab
     for i in range(LAYER_SIZES[1]):
-        tab.append([0] * LAYER_SIZES[0])
+        weightTab.append([0] * LAYER_SIZES[0])
 
     for i in range(LAYER_SIZES[1]):
         for j in range(LAYER_SIZES[0]):
             rnd = random.random()
-            tab[i][j] = rnd  / 48
+            weightTab[i][j] = rnd  / 48
 
-    # print(tab)
-    return tab
+    return weightTab
 
 # Randomize the choice of file to be used for training
 def randFileChoice():
@@ -58,80 +64,38 @@ def potentialOutputNeuronCalcul(weightTab, imageTab) :
 
     return (pot - THETA)
 
-# Learn phase -> training of the weight array 
-def learn(weightTab, error, imageTab) : 
+# Learn phase -> training of the weight array
+def learn(weightTab, error, imageTab) :
     for i in range(LAYER_SIZES[1]):
         for j in range(LAYER_SIZES[0]):
             weightTab[i][j] += (EPSILON * error * imageTab[j])
 
     return weightTab
 
-
-# def toBeCalled(weightTab, cpt, wrong) : 
-#     choiceFile = randFileChoice()
-#     # print(choiceFile)
-#     loadFile = readFile(choiceFile)
-#     tab = loadFile.get('tab')
-#     rightValueSaved = loadFile.get('value')
-#     # print(tab)
-
-#     if (len(weightTab) == 0):
-#         weightTab = initWeightTab()
-#     # print(weightTab)
-#     # print('\n')
-#     # print(len(weightTab))
-
-#     potOutput = potentialOutputNeuronCalcul(weightTab, tab)
-#     # print(potOutput)
-
-#     imageFound = -1
-#     if (potOutput >0) : 
-#         imageFound = 1
-#     else : 
-#         imageFound = 0
-
-#     if (imageFound != int(rightValueSaved)):
-#         wrong += 1
-#     print(str(imageFound)," ",rightValueSaved)
-
-#     # 5 Error calcul
-#     error = int(rightValueSaved) - imageFound
-
-#     #6 Learn
-#     # print(weightTab)
-#     newWeight = learn(weightTab, error, tab)
-    
-#     # print('\n')
-#     # print(newWeight)
-
-#     if (cpt < 100):
-#         toBeCalled(newWeight, cpt+1, wrong)
-#     else:
-#         print(wrong)
-
 def verif(weightTab):
     # Zero check error
     loadFileZero = readFile(FILE_TRAIN_LIST[0])
-    imageZero = loadFileZero.get('tab')
+    imageZero = loadFileZero.get('imageTab')
     potOutputZero = potentialOutputNeuronCalcul(weightTab, imageZero)
     imageFoundZero = -1
-    if (potOutputZero >0) : 
+    if (potOutputZero > 0) :
         imageFoundZero = 1
-    else : 
+    else :
         imageFoundZero = 0
     errorZero = 0 - imageFoundZero
 
     # One check error
     loadFileOne = readFile(FILE_TRAIN_LIST[1])
-    imageOne = loadFileOne.get('tab')
+    imageOne = loadFileOne.get('imageTab')
     potOutputOne = potentialOutputNeuronCalcul(weightTab, imageOne)
     imageFoundOne = -1
-    if (potOutputOne >0) : 
+    if (potOutputOne > 0) :
         imageFoundOne = 1
-    else : 
+    else :
         imageFoundOne = 0
     errorOne = 1 - imageFoundOne
 
+    print(errorZero, errorOne)
     errorFinal = abs(errorZero) + abs(errorOne)
 
     return errorFinal
@@ -141,7 +105,7 @@ def verif(weightTab):
 def toBeCalled(weightTab, cpt, errorTab) :
     choiceFile = randFileChoice()
     loadFile = readFile(choiceFile)
-    tab = loadFile.get('tab')
+    tab = loadFile.get('imageTab')
     rightValueSaved = loadFile.get('value')
 
     # Init weight tab only at the beginning when the model is not yet trained
@@ -151,11 +115,10 @@ def toBeCalled(weightTab, cpt, errorTab) :
     potOutput = potentialOutputNeuronCalcul(weightTab, tab)
 
     imageFound = -1
-    if (potOutput >0) : 
+    if (potOutput >0) :
         imageFound = 1
-    else : 
+    else :
         imageFound = 0
-    # print(str(imageFound)," ",rightValueSaved)
 
     # 5 Error calcul
     error = int(rightValueSaved) - imageFound
@@ -175,5 +138,3 @@ def toBeCalled(weightTab, cpt, errorTab) :
 
 if __name__ == "__main__":
     toBeCalled([], 0, [])
-
-    
