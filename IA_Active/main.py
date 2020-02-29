@@ -3,17 +3,17 @@ import argparse
 import random
 import os
 from dotenv import load_dotenv
-
+import matplotlib.pyplot as plt
 
 load_dotenv()
 
 LAYER_SIZES = [48, 1]
 EPSILON = 0.01
 THETA = 0.5
-FILE_TRAIN_LIST = ['zero.txt', 'one.txt']
-FILE_TEST_LIST = ['zero1.txt']
+FILE_TRAIN_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
+FILE_VERIF_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
+FILE_TEST_LIST = ['one2.txt','zero2.txt']
 PATH = os.getenv("PATH_TO_FILE")
-# PATH = "/data/LINUX/IA/ProjetPi/"
 
 def readFile(choice):
     imageTab = []
@@ -21,16 +21,16 @@ def readFile(choice):
     f= open(PATH+choice,"r")
     # Read file char by char
     while True:
-        c = f.read(1)
-        if not c:
+        char = f.read(1)
+        if not char:
             # print "End of file"
             break
-        if (c == '*'):
+        if (char == '*'):
             imageTab.append(1)
-        if (c == '.'):
+        if (char == '.'):
             imageTab.append(0)
-        if (c == '1' or c == '0'):
-            value = c
+        if (char == '1' or char == '0'):
+            value = char
 
     dictionnary = dict()
     dictionnary['imageTab'] = imageTab
@@ -50,7 +50,7 @@ def initWeightTab():
 
     return weightTab
 
-# Randomize the choice of file to be used for training
+# Randomize the choice of file to be used for training - use FILE_TRAIN_LIST list
 def randFileChoice():
     return random.choice(FILE_TRAIN_LIST)
 
@@ -87,17 +87,23 @@ def verifNumber(fileName, weightTab) :
     return error
 
 def verif(weightTab):
-    checkZeroIsRecognized = verifNumber(FILE_TRAIN_LIST[0], weightTab)
-    checkOneIsRecognized = verifNumber(FILE_TRAIN_LIST[1], weightTab)
-    print(checkZeroIsRecognized, checkOneIsRecognized)
-    errorFinal = abs(checkZeroIsRecognized) + abs(checkOneIsRecognized)
-    return errorFinal
+    resultFinalError = 0
+    errorList = []
+    for imageNumber in FILE_VERIF_LIST:
+        checkNumberIsRecognized = verifNumber(imageNumber, weightTab)
+        resultFinalError += abs(checkNumberIsRecognized)
+        errorList.append(checkNumberIsRecognized)
 
-def verifAfterTrain(weightTab):
-    checkZeroIsRecognized = verifNumber(FILE_TEST_LIST[0], weightTab)
-    print(checkZeroIsRecognized)
+    print(errorList)
+    return resultFinalError
 
-def toBeCalled(weightTab, cpt, errorTab) :
+def testTrainedModel(weightTabTrained):
+    for imageNumber in FILE_TEST_LIST:
+        isNumberRecognized = verifNumber(imageNumber, weightTabTrained)
+        print(imageNumber,' => ', 'True' if isNumberRecognized == 0 else 'False')
+
+# Function which will train the model and validate or not after each iteration (stop method)
+def trainNeuronNetwork(weightTab, cpt, errorTab) :
     choiceFile = randFileChoice()
     loadFile = readFile(choiceFile)
     tab = loadFile.get('imageTab')
@@ -118,18 +124,24 @@ def toBeCalled(weightTab, cpt, errorTab) :
     # 5 Error calcul
     error = int(rightValueSaved) - imageFound
 
-    #6 Learn
+    # 6 Learn
     newWeight = learn(weightTab, error, tab)
 
+    # Train while models is still making errors
     verifError = verif(newWeight)
     errorTab.append(verifError)
     if (verifError > 0):
-        toBeCalled(newWeight, cpt+1, errorTab)
+        trainNeuronNetwork(newWeight, cpt+1, errorTab)
     else :
         print(cpt)
         print(errorTab)
-        # Call another 1 to see
-        verifAfterTrain(newWeight)
+        plt.plot(errorTab)
+        plt.show()
+
+    return newWeight
 
 if __name__ == "__main__":
-    toBeCalled([], 0, [])
+    trainedWeight = trainNeuronNetwork([], 0, [])
+    # At the end we check with verif file (others files not in the training part)
+    print('\nVerification PART')
+    testTrainedModel(trainedWeight)
