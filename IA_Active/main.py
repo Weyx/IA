@@ -10,6 +10,9 @@ load_dotenv()
 LAYER_SIZES = [48, 1]
 EPSILON = 0.01
 THETA = 0.5
+# FILE_TRAIN_LIST = ['zero.txt', 'one.txt']
+# FILE_VERIF_LIST = ['zero.txt', 'one.txt']
+# FILE_TEST_LIST = ['one1.txt','zero2.txt']
 FILE_TRAIN_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
 FILE_VERIF_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
 FILE_TEST_LIST = ['one2.txt','zero2.txt']
@@ -86,7 +89,7 @@ def verifNumber(fileName, weightTab) :
     error = int(rightValueSaved) - imageFound
     return error
 
-def verif(weightTab):
+def verifPart(weightTab):
     resultFinalError = 0
     errorList = []
     for imageNumber in FILE_VERIF_LIST:
@@ -128,7 +131,7 @@ def trainNeuronNetwork(weightTab, cpt, errorTab) :
     newWeight = learn(weightTab, error, tab)
 
     # Train while models is still making errors
-    verifError = verif(newWeight)
+    verifError = verifPart(newWeight)
     errorTab.append(verifError)
     if (verifError > 0):
         trainNeuronNetwork(newWeight, cpt+1, errorTab)
