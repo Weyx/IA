@@ -15,7 +15,7 @@ THETA = 0.5
 # FILE_TEST_LIST = ['one1.txt','zero2.txt']
 FILE_TRAIN_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
 FILE_VERIF_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
-FILE_TEST_LIST = ['one2.txt','zero2.txt']
+FILE_TEST_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt', 'one2.txt','zero2.txt']
 PATH = os.getenv("PATH_TO_FILE")
 
 def readFile(choice):
@@ -35,6 +35,9 @@ def readFile(choice):
         if (char == '1' or char == '0'):
             value = char
 
+    # Add Xj+1 = 1
+    imageTab.append(1)
+
     dictionnary = dict()
     dictionnary['imageTab'] = imageTab
     dictionnary['value'] = value
@@ -44,12 +47,15 @@ def initWeightTab():
     weightTab = []
     # Init tab
     for i in range(LAYER_SIZES[1]):
-        weightTab.append([0] * LAYER_SIZES[0])
+        weightTab.append([0] * (LAYER_SIZES[0] + 1))
 
     for i in range(LAYER_SIZES[1]):
         for j in range(LAYER_SIZES[0]):
             rnd = random.random()
             weightTab[i][j] = rnd  / 48
+
+    # Init the last element : Wij+1
+    weightTab[LAYER_SIZES[1] - 1][LAYER_SIZES[0]] = -THETA
 
     return weightTab
 
@@ -62,15 +68,16 @@ def potentialOutputNeuronCalcul(weightTab, imageTab) :
     pot = 0
     i = LAYER_SIZES[1] - 1
 
-    for j in range(LAYER_SIZES[0]):
+    # Until j+1
+    for j in range(LAYER_SIZES[0] + 1):
         pot += weightTab[i][j] * imageTab[j]
 
-    return (pot - THETA)
+    return pot
 
 # Learn phase -> training of the weight array
 def learn(weightTab, error, imageTab) :
     for i in range(LAYER_SIZES[1]):
-        for j in range(LAYER_SIZES[0]):
+        for j in range(LAYER_SIZES[0] + 1):
             weightTab[i][j] += (EPSILON * error * imageTab[j])
 
     return weightTab
