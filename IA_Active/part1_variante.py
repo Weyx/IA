@@ -104,7 +104,7 @@ def verifPart(weightTab):
         resultFinalError += abs(checkNumberIsRecognized)
         errorList.append(checkNumberIsRecognized)
 
-    print(errorList)
+    # print(errorList)
     return resultFinalError
 
 def testTrainedModel(weightTabTrained):
@@ -143,8 +143,8 @@ def trainNeuronNetwork(weightTab, cpt, errorTab) :
     if (verifError > 0):
         trainNeuronNetwork(newWeight, cpt+1, errorTab)
     else :
-        print(cpt)
-        print(errorTab)
+        # print(cpt)
+        # print(errorTab)
         plt.plot(errorTab)
         # plt.show()
 
