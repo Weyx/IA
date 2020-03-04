@@ -2,7 +2,7 @@ import sys
 import part1, part1_variante
 import matplotlib.pyplot as plt
 
-TRIALS_NUMBER = 50
+TRIALS_NUMBER = 100
 
 if __name__ == "__main__":
     # PART 1

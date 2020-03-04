@@ -10,13 +10,15 @@ load_dotenv()
 LAYER_SIZES = [48, 1]
 EPSILON = 0.01
 THETA = 0.5
-# FILE_TRAIN_LIST = ['zero.txt', 'one.txt']
-# FILE_VERIF_LIST = ['zero.txt', 'one.txt']
-# FILE_TEST_LIST = ['one1.txt','zero2.txt']
-FILE_TRAIN_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
-FILE_VERIF_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
-FILE_TEST_LIST = ['zero.txt', 'one.txt']
+FILE_TRAIN_LIST = ['zero.txt', 'one.txt']
+FILE_VERIF_LIST = ['zero.txt', 'one.txt']
+FILE_TEST_LIST = ['one.txt','zero.txt']
+# FILE_TRAIN_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
+# FILE_VERIF_LIST = ['zero.txt', 'zero1.txt', 'one.txt', 'one1.txt']
+# FILE_TEST_LIST = ['zero.txt', 'one.txt']
 PATH = os.getenv("PATH_TO_FILE")
+
+imageCached = {}
 
 def printImageTab(imageTab):
     for i in range(len(imageTab)):
@@ -42,11 +44,39 @@ def readFile(choice):
     dictionnary = dict()
     dictionnary['imageTab'] = imageTab
     dictionnary['value'] = value
+    imageCached[choice] = dictionnary
     return dictionnary
+
+    # Try to cache image - generate bug into returned errors
+    # if(imageCached.get(choice) == None):
+    #     print('called')
+    #     imageTab = []
+    #     value = -1
+    #     f= open(PATH+choice,"r")
+    #     # Read file char by char
+    #     while True:
+    #         char = f.read(1)
+    #         if not char:
+    #             # print "End of file"
+    #             break
+    #         if (char == '*'):
+    #             imageTab.append(1)
+    #         if (char == '.'):
+    #             imageTab.append(0)
+    #         if (char == '1' or char == '0'):
+    #             value = char
+
+    #     dictionnary = dict()
+    #     dictionnary['imageTab'] = imageTab
+    #     dictionnary['value'] = value
+    #     imageCached[choice] = dictionnary
+    #     return dictionnary
+    # else : 
+    #     print(imageCached)
+    #     return imageCached.get(choice)
 
 def sortingNoise (imageTab, percentage = 0) :
     reverseNumber = int(LAYER_SIZES[0] * percentage)
-    # print('nombre de case retournées : ', reverseNumber)
     if (reverseNumber <= LAYER_SIZES[0]):
         reverseIndexTab = random.sample(range(0, LAYER_SIZES[0]), reverseNumber)
     for item in reverseIndexTab:
@@ -157,8 +187,9 @@ def trainNeuronNetwork(weightTab, cpt, errorTab) :
     else :
         # print(cpt)
         # print(errorTab)
-        plt.plot(errorTab)
+        # plt.plot(errorTab)
         # plt.show()
+        pass
 
     return newWeight
 
