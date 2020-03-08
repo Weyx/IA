@@ -6,22 +6,39 @@ from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 import copy
 
-sys.setrecursionlimit(1000000000)
 load_dotenv()
 
-LAYER_SIZES = [48, 5]
 EPSILON = 0.1
 THETA = 0.5
+
+VERIF_ERROR = 0.000001
+# FILE_TRAIN_LIST = ['0.txt', '1.txt']
+# FILE_VERIF_LIST = ['0.txt', '1.txt']
+# FILE_TEST_LIST = ['0.txt', '1.txt']
 # FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt']
 # FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt']
 # FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt']
-FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt']
-FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt']
-FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt']
+# FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt']
+# FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt']
+# FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt']
+# FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt']
+# FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt']
+# FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt']
+# FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt']
+# FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt']
+# FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt'] #12k
+# FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt']
+# FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt']
+# FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt'] #15k
+FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt']
+FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt']
+FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt'] #23k
 # FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt']
 # FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt']
-# FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt']
+# FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt'] #23k
+
 PATH = os.getenv("PATH_TO_FILE")
+LAYER_SIZES = [48, len(FILE_TRAIN_LIST)]
 
 imageCached = {}
 
@@ -45,7 +62,16 @@ def readFile(choice):
                 imageTab.append(1)
             if (char == '.'):
                 imageTab.append(0)
-            if (char == '1' or char == '0'):
+            if (char == '0' or
+                char == '1' or
+                char == '2' or
+                char == '3' or
+                char == '4' or
+                char == '5' or
+                char == '6' or
+                char == '7' or
+                char == '8' or
+                char == '9'):
                 value = char
 
         dictionnary = dict()
@@ -63,7 +89,6 @@ def sortingNoise (imageTab, percentage = 0) :
         reverseIndexTab = random.sample(range(0, LAYER_SIZES[0]), reverseNumber)
     for item in reverseIndexTab:
         imageTab[item] = 1 if (imageTab[item] == 0) else 0
-    # printImageTab(imageTab)
     return imageTab
 
 def initWeightTab():
@@ -77,7 +102,6 @@ def initWeightTab():
             rnd = random.random()
             weightTab[i][j] = rnd  / 48
 
-    # print(weightTab)
     return weightTab
 
 # Randomize the choice of file to be used for training - use FILE_TRAIN_LIST list
@@ -88,16 +112,12 @@ def randFileChoice():
 def potentialOutputNeuronCalcul(weightTab, imageTab) :
     pot = []
     localResult = 0
-    i = LAYER_SIZES[1] - 1
-
 
     for i in range(LAYER_SIZES[1]):
         for j in range(LAYER_SIZES[0]):
             localResult += weightTab[i][j] * imageTab[j]
         pot.append(localResult - THETA)
 
-    # print("\npotential")
-    # print(pot)
     return pot
 
 # Learn phase -> training of the weight array
@@ -106,8 +126,6 @@ def learn(weightTab, error, imageTab) :
         for j in range(LAYER_SIZES[0]):
             weightTab[i][j] += (EPSILON * error[i] * imageTab[j])
 
-    # print("weightTab")
-    # print(weightTab)
     return weightTab
 
 def verifNumber(fileName, weightTab, noise = 0) :
@@ -118,31 +136,23 @@ def verifNumber(fileName, weightTab, noise = 0) :
     rightValueSaved = [0] * LAYER_SIZES[1]
     rightValueSaved[int(loadFile.get('value'))] = 1
 
-    potOutput = potentialOutputNeuronCalcul(weightTab, imageTab)
+    # print(loadFile.get('value'))
 
-    # Use heaviside to test it with generalization
-    if noise > 0:
-        # imageFound = -1
-        # if (abs(potOutput) >= 0.5) :
-        #     imageFound = 1
-        # else :
-        #     imageFound = 0
-        # error = int(rightValueSaved) - imageFound
-        # return error
-        for i in range(LAYER_SIZES[1]):
-            imageFound = -1
-            error = [0] * LAYER_SIZES[1]
-            if (abs(potOutput[i]) >= 0.5) :
-                imageFound = 1
-            else :
-                imageFound = 0
-            error[i] = abs(int(rightValueSaved[i]) - imageFound)
-        # print(sum(error))
-        return sum(error)
+    potOutput = potentialOutputNeuronCalcul(weightTab, imageTab)
 
     error = [0] * LAYER_SIZES[1]
     for i in range(LAYER_SIZES[1]):
         error[i] = rightValueSaved[i] - potOutput[i]
+
+    # Only called during tests
+    if noise > 0 :
+        print(rightValueSaved)
+        print(potOutput)
+
+        # Print histogram for each number
+        bars=list(range(0, LAYER_SIZES[1]))
+        plt.bar(bars, potOutput)
+        plt.show()
 
     return sum(error)
 
@@ -160,52 +170,94 @@ def testTrainedModel(weightTabTrained, noise = 0):
     cptImageErrorTab = []
     for imageNumber in FILE_TEST_LIST:
         isNumberRecognized = verifNumber(imageNumber, weightTabTrained, noise)
-        # print(imageNumber,' => ', 'True' if isNumberRecognized == 0 else 'False')
         cptImageErrorTab.append(abs(isNumberRecognized))
     return cptImageErrorTab
 
 # Function which will train the model and validate or not after each iteration (stop method)
 def trainNeuronNetwork(weightTab, cpt, errorTab) :
-    choiceFile = randFileChoice()
-    loadFile = readFile(choiceFile)
-    tab = loadFile.get('imageTab')
-    rightValueSaved = [0] * LAYER_SIZES[1]
-    rightValueSaved[int(loadFile.get('value'))] = 1
+    verifError = 1
+    while verifError > VERIF_ERROR:
+        # print(verifError)
+        choiceFile = randFileChoice()
+        loadFile = readFile(choiceFile)
+        tab = loadFile.get('imageTab')
+        rightValueSaved = [0] * LAYER_SIZES[1]
+        rightValueSaved[int(loadFile.get('value'))] = 1
 
-    # Init weight tab only at the beginning when the model is not yet trained
-    if (len(weightTab) == 0):
-        weightTab = initWeightTab()
+        # Init weight tab only at the beginning when the model is not yet trained
+        if (len(weightTab) == 0):
+            weightTab = initWeightTab()
 
-    potOutput = potentialOutputNeuronCalcul(weightTab, tab)
+        potOutput = potentialOutputNeuronCalcul(weightTab, tab)
 
-    # 5 Error calcul
-    error = [0] * LAYER_SIZES[1]
-    for i in range(LAYER_SIZES[1]):
-        error[i] = rightValueSaved[i] - potOutput[i]
+        # 5 Error calcul
+        error = [0] * LAYER_SIZES[1]
+        for i in range(LAYER_SIZES[1]):
+            error[i] = rightValueSaved[i] - potOutput[i]
 
-    # 6 Learn
-    newWeight = learn(weightTab, error, tab)
+        # 6 Learn
+        newWeight = learn(weightTab, error, tab)
 
-    # Train while models is still making errors
-    verifError = verifPart(newWeight)
-    errorTab.append(verifError)
-    if (verifError > 0.000000001):
-        trainNeuronNetwork(newWeight, cpt+1, errorTab)
-    else :
-        print(cpt)
-        # print(weightTab)
-        # print(errorTab)
-        plt.plot(errorTab)
-        plt.show()
-        # pass
+        # Train while models is still making errors
+        verifError = verifPart(newWeight)
+        errorTab.append(verifError)
+        cpt +=1
+
+    print(cpt)
+    # print(weightTab)
+    # print(errorTab)
+    # plt.plot(errorTab)
+    # plt.show()
 
     return newWeight
 
+def printContrastedWeight(weightTab):
+    test = []
+    for i in range(8):
+        test.append((weightTab[i * 6 + 0],
+            weightTab[i * 6 + 1],
+            weightTab[i * 6 + 2],
+            weightTab[i * 6 + 3],
+            weightTab[i * 6 + 4],
+            weightTab[i * 6 + 5]))
+
+    plt.imshow(test)
+    # plt.imshow([(3,3,0),(0,2,0),(0,0,1)])
+    plt.colorbar()
+    plt.show()
+
+def saveTrainedWeight (weightTab):
+    with open("./saveWeights/trainedWeights.txt", "w") as txt_file:
+        for line in weightTab:
+            txt_file.write("".join(str(line)) + "\n")
+
 if __name__ == "__main__":
+    test = []
     trainedWeight = trainNeuronNetwork([], 0, [])
+
+    # READ into file (saved trained weights)
+
     # At the end we check with verif file (others files not in the training part)
-    # print('\nVerification PART')
-    testTrainedModel(trainedWeight, 0.3)
+    print('\nVerification PART')
+    # print(testTrainedModel(trainedWeight, 0))
+    testTrainedModel(trainedWeight, 0.05)
+    # print(testTrainedModel(trainedWeight, 0.1))
+    # print(testTrainedModel(trainedWeight, 0.2))
+    # print(testTrainedModel(trainedWeight, 0.3))
+    # print(testTrainedModel(trainedWeight, 0.5))
     # testTrainedModel(trainedWeight, 0.01)
     # testTrainedModel(trainedWeight, 0.01)
     # testTrainedModel(trainedWeight, 0.01)
+
+    printContrastedWeight(trainedWeight[0])
+    printContrastedWeight(trainedWeight[1])
+    printContrastedWeight(trainedWeight[2])
+    printContrastedWeight(trainedWeight[3])
+    printContrastedWeight(trainedWeight[4])
+    printContrastedWeight(trainedWeight[5])
+    printContrastedWeight(trainedWeight[6])
+    printContrastedWeight(trainedWeight[7])
+    printContrastedWeight(trainedWeight[8])
+
+    print(trainedWeight)
+    saveTrainedWeight(trainedWeight)
