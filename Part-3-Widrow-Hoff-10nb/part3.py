@@ -8,7 +8,7 @@ import copy
 
 load_dotenv()
 
-EPSILON = 0.1
+EPSILON = 0.01
 THETA = 0.5
 
 VERIF_ERROR = 0.000001
@@ -30,12 +30,12 @@ VERIF_ERROR = 0.000001
 # FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt']
 # FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt']
 # FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt'] #15k
-FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt']
-FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt']
-FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt'] #23k
-# FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt']
-# FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt']
-# FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt'] #23k
+# FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt']
+# FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt']
+# FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt'] #23k
+FILE_TRAIN_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt']
+FILE_VERIF_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt']
+FILE_TEST_LIST = ['0.txt', '1.txt', '2.txt', '3.txt', '4.txt', '5.txt', '6.txt', '7.txt', '8.txt', '9.txt'] #?k
 
 PATH = os.getenv("PATH_TO_FILE")
 LAYER_SIZES = [48, len(FILE_TRAIN_LIST)]
@@ -249,15 +249,15 @@ if __name__ == "__main__":
     # testTrainedModel(trainedWeight, 0.01)
     # testTrainedModel(trainedWeight, 0.01)
 
-    printContrastedWeight(trainedWeight[0])
-    printContrastedWeight(trainedWeight[1])
-    printContrastedWeight(trainedWeight[2])
-    printContrastedWeight(trainedWeight[3])
-    printContrastedWeight(trainedWeight[4])
-    printContrastedWeight(trainedWeight[5])
-    printContrastedWeight(trainedWeight[6])
-    printContrastedWeight(trainedWeight[7])
-    printContrastedWeight(trainedWeight[8])
+    # printContrastedWeight(trainedWeight[0])
+    # printContrastedWeight(trainedWeight[1])
+    # printContrastedWeight(trainedWeight[2])
+    # printContrastedWeight(trainedWeight[3])
+    # printContrastedWeight(trainedWeight[4])
+    # printContrastedWeight(trainedWeight[5])
+    # printContrastedWeight(trainedWeight[6])
+    # printContrastedWeight(trainedWeight[7])
+    # printContrastedWeight(trainedWeight[8])
 
     print(trainedWeight)
     saveTrainedWeight(trainedWeight)
