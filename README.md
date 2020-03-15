@@ -30,7 +30,7 @@
 
 ## TD1 - Question 3 : Widrow-Hoff (généralisation sur 10 classes : de 0 à 9)
 
-<img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/9_numbers_almost_perfect/LearningCurve.png"/>
+<img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/9_numbers_almost_perfect/learningCurve.png"/>
 
 ### Remarques
 
