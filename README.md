@@ -41,10 +41,11 @@
 
 ### Problème rencontré
 
-<img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/9_numbers_almost_perfect/9_changement.png"/>
-
 Le modèle fonctionnait parfaitement bien jusqu'au nombre 8 et permettait un apprentissage rapide et fiable.
 Lors de l'ajout du nombre 9, l'apprentissage était très long et l'erreur variait beaucoup sans vraiment se rapprocher d'une erreur à 10⁻⁶ demandé (condition d'arrêt); Nous étions dans le cas d'une boucle infinie.
+
+<img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/9_numbers_almost_perfect/9_changement.png"/>
+
 Le nombre 9 étant très proche des nombres 0, 3, 6 et 8, j'ai choisi de décaler tout le nombre 9 d'un pixel vers le bas afin qu'il n'y ait plus de corrélation avec les nombres cités ci-dessus.
 Ce choix a été concluant car dès le premier essai, nous avons obtenu un modèle robuste permettant de reconnaitre les nombres de 0 à 9.
 
