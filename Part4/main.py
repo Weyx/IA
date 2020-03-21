@@ -79,11 +79,38 @@ def potOutputLayer1Calcul(weightL1, imageTab):
         pot1.append(np.sum(weightL1[h] * imageTab))
 
     toc = time.perf_counter()
-    print(f"potOutput function => {toc - tic:0.4f} seconds")
+    print(f"potOutput1 function => {toc - tic:0.4f} seconds")
     # print(pot)
-    print(pot1)
-
+    # print(pot1)
     return pot1
+
+def functionAfterPot (potentialTab):
+    for i in range(len(potentialTab)):
+        potentialTab[i] = 1 / (1 + np.exp(-potentialTab[i]))
+    return potentialTab
+
+def potOutputLayer2Calcul(weightL2, funcAfterPot1):
+    print(weightL2.size)
+    print(len(weightL2))
+    tic = time.perf_counter()
+    # pot = []
+    pot2 = []
+
+    # localResult = 0
+    # for i in range(LAYER_SIZES[2]):
+    #     localResult = 0
+    #     for h in range(len(funcAfterPot1)):
+    #         localResult += weightL2[i][h] * funcAfterPot1[h]
+    #     pot.append(localResult)
+
+    for i in np.arange(LAYER_SIZES[2]):
+        pot2.append(np.sum(weightL2[i] * funcAfterPot1))
+
+    toc = time.perf_counter()
+    print(f"potOutput2 function => {toc - tic:0.4f} seconds")
+    # print(pot)
+    # print(pot2)
+    return pot2
 
 
 if __name__ == "__main__":
@@ -99,6 +126,10 @@ if __name__ == "__main__":
         # print(weightTab[1].size)
 
         potentialOutputLayer1 = potOutputLayer1Calcul(weightTab[0], imageTab)
-        # print(potentialOutputLayer1)
+        funcAfterPot1 = functionAfterPot(potentialOutputLayer1)
+        # print(len(potentialOutputLayer1))
+        potentialOutputLayer2 = potOutputLayer2Calcul(weightTab[1], funcAfterPot1)
+        funcAfterPot2 = functionAfterPot(potentialOutputLayer2)
+        # print(funcAfterPot2)
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data
