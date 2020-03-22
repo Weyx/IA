@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+Part-3-Widrow-Hoff-10nb/generatedPlots/Noise

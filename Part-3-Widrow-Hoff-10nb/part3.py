@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 import copy
+import numpy as np
 
 load_dotenv()
 
@@ -114,6 +115,7 @@ def potentialOutputNeuronCalcul(weightTab, imageTab) :
     localResult = 0
 
     for i in range(LAYER_SIZES[1]):
+        localResult = 0
         for j in range(LAYER_SIZES[0]):
             localResult += weightTab[i][j] * imageTab[j]
         pot.append(localResult - THETA)
@@ -146,13 +148,14 @@ def verifNumber(fileName, weightTab, noise = 0) :
 
     # Only called during tests
     if noise > 0 :
-        print(rightValueSaved)
-        print(potOutput)
+        # print(rightValueSaved)
+        # print(potOutput)
+        return [potOutput, rightValueSaved]
 
         # Print histogram for each number
-        bars=list(range(0, LAYER_SIZES[1]))
-        plt.bar(bars, potOutput)
-        plt.show()
+        # bars=list(range(0, LAYER_SIZES[1]))
+        # plt.bar(bars, potOutput)
+        # plt.show()
 
     return sum(error)
 
@@ -172,6 +175,27 @@ def testTrainedModel(weightTabTrained, noise = 0):
         isNumberRecognized = verifNumber(imageNumber, weightTabTrained, noise)
         cptImageErrorTab.append(abs(isNumberRecognized))
     return cptImageErrorTab
+
+def testTrainedModel100(weightTabTrained, noise = 0):
+    cptNb = [0] * LAYER_SIZES[1]
+    nbTry = 1000
+    for imageNumber in FILE_TEST_LIST:
+        cptNb = [0] * LAYER_SIZES[1]
+        for i in range(nbTry) :
+            potOutput = verifNumber(imageNumber, weightTabTrained, noise)
+            result = np.where(potOutput[0] == np.amax(potOutput[0]))
+            cptNb[result[0][0]] += 1
+            # print(result[0])
+            # print("\n")
+        print(cptNb)
+        rightNumber = result = np.where(potOutput[1] == np.amax(potOutput[1]))[0][0]
+        # Print histogram for each number
+        bars=list(range(0, LAYER_SIZES[1]))
+        plt.bar(bars, cptNb)
+        plt.title("Nombre : "+str(rightNumber)+" (Bruitage: "+str(noise)+" - Essais: "+str(nbTry)+")")
+        plt.savefig('generatedPlots/Noise/Noise_'+str(noise)+'/Nb'+str(rightNumber)+'_Noise'+str(noise)+'.png')
+        plt.show()
+
 
 # Function which will train the model and validate or not after each iteration (stop method)
 def trainNeuronNetwork(weightTab, cpt, errorTab) :
@@ -206,8 +230,8 @@ def trainNeuronNetwork(weightTab, cpt, errorTab) :
     print(cpt)
     # print(weightTab)
     # print(errorTab)
-    # plt.plot(errorTab)
-    # plt.show()
+    plt.plot(errorTab)
+    plt.show()
 
     return newWeight
 
@@ -240,7 +264,9 @@ if __name__ == "__main__":
     # At the end we check with verif file (others files not in the training part)
     print('\nVerification PART')
     # print(testTrainedModel(trainedWeight, 0))
-    testTrainedModel(trainedWeight, 0.05)
+    # testTrainedModel(trainedWeight, 0.7)
+    testTrainedModel100(trainedWeight, 0.1)
+
     # print(testTrainedModel(trainedWeight, 0.1))
     # print(testTrainedModel(trainedWeight, 0.2))
     # print(testTrainedModel(trainedWeight, 0.3))
@@ -259,5 +285,5 @@ if __name__ == "__main__":
     # printContrastedWeight(trainedWeight[7])
     # printContrastedWeight(trainedWeight[8])
 
-    print(trainedWeight)
-    saveTrainedWeight(trainedWeight)
+    # print(trainedWeight)
+    # saveTrainedWeight(trainedWeight)
