@@ -51,7 +51,7 @@ Ce choix a été concluant car dès le premier essai, nous avons obtenu un modè
 
 ## Test du modèle entrainé
 
-<img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/data_readme/testModel_1000.png"/>
+<img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/data_readme/testModel_1000.PNG"/>
 
 ### Caractéristiques
 
