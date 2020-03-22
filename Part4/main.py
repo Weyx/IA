@@ -81,12 +81,15 @@ def potOutputLayer1Calcul(weightL1, imageTab):
     toc = time.perf_counter()
     print(f"potOutput1 function => {toc - tic:0.4f} seconds")
     # print(pot)
-    # print(pot1)
+    # print(pot1)s
     return pot1
+
+def Fx(x):
+    return (1 / (1 + np.exp(-x)))
 
 def functionAfterPot (potentialTab):
     for i in range(len(potentialTab)):
-        potentialTab[i] = 1 / (1 + np.exp(-potentialTab[i]))
+        potentialTab[i] = Fx(potentialTab[i])
     return potentialTab
 
 def potOutputLayer2Calcul(weightL2, funcAfterPot1):
@@ -112,6 +115,30 @@ def potOutputLayer2Calcul(weightL2, funcAfterPot1):
     # print(pot2)
     return pot2
 
+# --- Error calcul ---
+def calculateOutputError (potTabOutput, funcAfterPotOutput, labelTab):
+    errorOutputTab = [0] * LAYER_SIZES[2]
+
+    for i in range(LAYER_SIZES[2]):
+        fx = Fx(potTabOutput[i])
+        derivate = fx * (1 - fx)
+        errorOutputTab[i] = derivate * labelTab[i] - funcAfterPotOutput[i]
+
+    # print(errorOutputTab)
+    return errorOutputTab
+
+def calculateHiddenLayerError(potTabHiddenLayer, errorOutputTab, weightL2):
+    errorHiddenLayerTab = [0] * LAYER_SIZES[1]
+
+    for h in range(LAYER_SIZES[1]):
+        fx = Fx(potTabHiddenLayer[i])
+        derivate = fx * (1 - fx)
+        partWeightTab = weightL2[h]
+        sumErrorWeights = np.sum(errorOutputTab * partWeightTab)
+        errorOutputTab[i] = derivate * sumErrorWeights
+
+    print(errorHiddenLayerTab)
+    return errorHiddenLayerTab
 
 if __name__ == "__main__":
     for i in range(1):
@@ -131,5 +158,12 @@ if __name__ == "__main__":
         potentialOutputLayer2 = potOutputLayer2Calcul(weightTab[1], funcAfterPot1)
         funcAfterPot2 = functionAfterPot(potentialOutputLayer2)
         # print(funcAfterPot2)
+
+        labelTab = np.array([0] * LAYER_SIZES[2])
+        labelTab[label] = 1
+
+        outputError = calculateOutputError(potentialOutputLayer2, funcAfterPot2, labelTab)
+        hiddenLayerError = calculateHiddenLayerError(potentialOutputLayer1, outputError, weightTab[1])
+        # print(len(potentialOutputLayer1))
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data
