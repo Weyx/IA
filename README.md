@@ -36,7 +36,7 @@
 
 - Evolution de l'erreur du modèle au cours de son apprentissage
 - A partir de 2500 itérations, le modèle est quasi parfait pour être utilisé
-- Le modèle est arrêté quand son err < 10⁻⁶, sans cette étape d'arrêt, le modèle partirait dans une boucle infinie (arrêté à la 96589ème itération)
+- Le modèle est arrêté quand son err < 10⁻⁶, sans cette étape d'arrêt, le modèle partirait dans une boucle infinie (arrêté à la 142916ème itération)
 - Valeurs utilisées : Epsilon : 0.01 et Theta : 0.5
 
 ### Problème rencontré

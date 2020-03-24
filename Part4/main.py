@@ -12,8 +12,7 @@ labelFile.read(8)
 # LAYER_SIZES = [3,2,1]
 IMAGE_SIZE = 28
 LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
-
-
+EPSILON = 0.01
 
 # --- READ IMAGE INTO DATASET ---
 def ascii_show(image):
@@ -148,6 +147,24 @@ def calculateHiddenLayerError(potTabHiddenLayer, errorOutputTab, weightL2):
     # print(errorHiddenLayerTab)
     return errorHiddenLayerTab
 
+# --- LEARNING PART ---
+def learning (sigmaI, sigmaH, weightL1, weightL2, Xj, Xh):
+    # Wih (t+1) = Wih(t)+eps.sigma i . Xh
+    # Whj (t+1) = Whj(t)+eps.sigma h . Xj
+    for i in range(len(sigmaI)):
+        for h in range(len(Xh)):
+            weightL2[i][h] += EPSILON * sigmaI[i] * Xh[h]
+
+    for h in range(len(sigmaH)):
+        for j in range(len(Xj)):
+            # print(EPSILON * sigmaH[h] * Xj[j])
+            weightL1[i][h] += EPSILON * sigmaH[h] * Xj[j]
+
+    # print(weightL1.size)
+    # print(len(Xj))
+    # print(weightL2)
+    return ;
+
 if __name__ == "__main__":
     for i in range(1):
         returnedValue = readNewImage()
@@ -165,15 +182,19 @@ if __name__ == "__main__":
 
         # --- Propagation ---
         potentialOutputLayer1 = potOutputLayer1Calcul(weightTab[0], imageTab)
-        funcAfterPot1 = functionAfterPot(potentialOutputLayer1)
+        Xh = functionAfterPot(potentialOutputLayer1)
         # print(len(potentialOutputLayer1))
-        potentialOutputLayer2 = potOutputLayer2Calcul(weightTab[1], funcAfterPot1)
-        funcAfterPot2 = functionAfterPot(potentialOutputLayer2)
+        potentialOutputLayer2 = potOutputLayer2Calcul(weightTab[1], Xh)
+        Xi = functionAfterPot(potentialOutputLayer2)
         # print(funcAfterPot2)
 
         # --- Retropropagation ---
-        outputError = calculateOutputLayerError(potentialOutputLayer2, funcAfterPot2, labelTab)
-        hiddenLayerError = calculateHiddenLayerError(potentialOutputLayer1, outputError, weightTab[1])
+        sigmaI = calculateOutputLayerError(potentialOutputLayer2, Xi, labelTab)
+        sigmaH = calculateHiddenLayerError(potentialOutputLayer1, sigmaI, weightTab[1])
         # print(hiddenLayerError)
+
+        # --- Learning ---
+        learning(sigmaI, sigmaH, weightTab[0], weightTab[1], imageTab, Xh)
+
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data
