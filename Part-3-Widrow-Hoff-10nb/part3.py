@@ -157,7 +157,7 @@ def verifNumber(fileName, weightTab, noise = 0) :
         # plt.bar(bars, potOutput)
         # plt.show()
 
-    return sum(error)
+    return sum(np.abs(error))
 
 def verifPart(weightTab, noise = 0):
     resultFinalError = 0
