@@ -50,7 +50,7 @@ def readNewImage():
 # ---  ---
 def initWeightTab():
     weightTab1 = np.random.rand(LAYER_SIZES[1], LAYER_SIZES[0]) / (IMAGE_SIZE * IMAGE_SIZE)
-    weightTab2 = np.random.rand(LAYER_SIZES[2], LAYER_SIZES[1]) / (IMAGE_SIZE * IMAGE_SIZE)
+    weightTab2 = np.random.rand(LAYER_SIZES[2], LAYER_SIZES[1]) / (100)
 
 
     # print("nombre de dimensions de x1: ", weightTab.ndim)
@@ -60,7 +60,7 @@ def initWeightTab():
 
     return [weightTab1, weightTab2]
 
-# --- Calculate potential ---
+# --- Calculate potential - PROPAGATION PART ---
 def potOutputLayer1Calcul(weightL1, imageTab):
     print(weightL1.size)
     print(len(weightL1))
@@ -115,8 +115,8 @@ def potOutputLayer2Calcul(weightL2, funcAfterPot1):
     # print(pot2)
     return pot2
 
-# --- Error calcul ---
-def calculateOutputError (potTabOutput, funcAfterPotOutput, labelTab):
+# --- Error calcul - RETROPROPAGATION PART ---
+def calculateOutputLayerError (potTabOutput, funcAfterPotOutput, labelTab):
     errorOutputTab = [0] * LAYER_SIZES[2]
 
     for i in range(LAYER_SIZES[2]):
@@ -128,16 +128,24 @@ def calculateOutputError (potTabOutput, funcAfterPotOutput, labelTab):
     return errorOutputTab
 
 def calculateHiddenLayerError(potTabHiddenLayer, errorOutputTab, weightL2):
+    tic = time.perf_counter()
     errorHiddenLayerTab = [0] * LAYER_SIZES[1]
 
     for h in range(LAYER_SIZES[1]):
-        fx = Fx(potTabHiddenLayer[i])
+        fx = Fx(potTabHiddenLayer[h])
         derivate = fx * (1 - fx)
-        partWeightTab = weightL2[h]
-        sumErrorWeights = np.sum(errorOutputTab * partWeightTab)
-        errorOutputTab[i] = derivate * sumErrorWeights
+        # partWeightTab = weightL2[h]
+        # sumErrorWeights = np.sum(errorOutputTab * partWeightTab)
 
-    print(errorHiddenLayerTab)
+        localSum = 0
+        for i in range(len(errorOutputTab)):
+            localSum += errorOutputTab[i] * weightL2[i][h]
+
+        errorHiddenLayerTab[h] = derivate * localSum
+
+    toc = time.perf_counter()
+    print(f"calculateHiddenLayerError function => {toc - tic:0.4f} seconds")
+    # print(errorHiddenLayerTab)
     return errorHiddenLayerTab
 
 if __name__ == "__main__":
@@ -147,11 +155,15 @@ if __name__ == "__main__":
         # print(returnedValue.get("imageTab"))
         label = returnedValue.get("label")
         imageTab = returnedValue.get("imageTab") / 255
-        # print(imageTab)
+
+        # Indicate which label is it => example : if label = 8 => [0,0,0,0,0,0,0,0,1,0]
+        labelTab = np.array([0] * LAYER_SIZES[2])
+        labelTab[label] = 1
 
         weightTab = initWeightTab()
         # print(weightTab[1].size)
 
+        # --- Propagation ---
         potentialOutputLayer1 = potOutputLayer1Calcul(weightTab[0], imageTab)
         funcAfterPot1 = functionAfterPot(potentialOutputLayer1)
         # print(len(potentialOutputLayer1))
@@ -159,11 +171,9 @@ if __name__ == "__main__":
         funcAfterPot2 = functionAfterPot(potentialOutputLayer2)
         # print(funcAfterPot2)
 
-        labelTab = np.array([0] * LAYER_SIZES[2])
-        labelTab[label] = 1
-
-        outputError = calculateOutputError(potentialOutputLayer2, funcAfterPot2, labelTab)
+        # --- Retropropagation ---
+        outputError = calculateOutputLayerError(potentialOutputLayer2, funcAfterPot2, labelTab)
         hiddenLayerError = calculateHiddenLayerError(potentialOutputLayer1, outputError, weightTab[1])
-        # print(len(potentialOutputLayer1))
+        # print(hiddenLayerError)
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data

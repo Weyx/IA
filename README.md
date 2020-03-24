@@ -62,6 +62,14 @@ Ce choix a été concluant car dès le premier essai, nous avons obtenu un modè
 
 Les graphes ci-dessus ont été générés à partir de 1000 tests avec un bruitage de 10%. <br>
 Nous pouvons remarquer que le bruitage de 10% vient altérer la détection des différents nombres.<br>
+<br>
+Par ailleurs, après analyse des graphes ci-dessus, nous pouvons remarquer que certains nombres se recoupent logiquement comme :
+
+- le nombre 0 avec le nombre 6 (resp. 72% et 10%)
+- le nombre 6 avec le nombre 5 (resp. 75% et 12%)
+- le nombre 8 avec le nombre 6 (resp. 73% et 12%)
+
+
 
 <!-- ### Les valeurs des 10 ouptuts du modèle après entrainement
 
