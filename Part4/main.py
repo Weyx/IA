@@ -51,7 +51,6 @@ def initWeightTab():
     weightTab1 = np.random.rand(LAYER_SIZES[1], LAYER_SIZES[0]) / (IMAGE_SIZE * IMAGE_SIZE)
     weightTab2 = np.random.rand(LAYER_SIZES[2], LAYER_SIZES[1]) / (100)
 
-
     # print("nombre de dimensions de x1: ", weightTab.ndim)
     # print("forme de weightTab: ", weightTab.shape)
     # print("taille de weightTab: ", weightTab.size)
@@ -61,9 +60,7 @@ def initWeightTab():
 
 # --- Calculate potential - PROPAGATION PART ---
 def potOutputLayer1Calcul(weightL1, imageTab):
-    print(weightL1.size)
-    print(len(weightL1))
-    tic = time.perf_counter()
+    # tic = time.perf_counter()
     # pot = []
     pot1 = []
 
@@ -77,8 +74,8 @@ def potOutputLayer1Calcul(weightL1, imageTab):
     for h in np.arange(LAYER_SIZES[1]):
         pot1.append(np.sum(weightL1[h] * imageTab))
 
-    toc = time.perf_counter()
-    print(f"potOutput1 function => {toc - tic:0.4f} seconds")
+    # toc = time.perf_counter()
+    # print(f"potOutput1 function => {toc - tic:0.4f} seconds")
     # print(pot)
     # print(pot1)s
     return pot1
@@ -92,9 +89,7 @@ def functionAfterPot (potentialTab):
     return potentialTab
 
 def potOutputLayer2Calcul(weightL2, funcAfterPot1):
-    print(weightL2.size)
-    print(len(weightL2))
-    tic = time.perf_counter()
+    # tic = time.perf_counter()
     # pot = []
     pot2 = []
 
@@ -108,8 +103,8 @@ def potOutputLayer2Calcul(weightL2, funcAfterPot1):
     for i in np.arange(LAYER_SIZES[2]):
         pot2.append(np.sum(weightL2[i] * funcAfterPot1))
 
-    toc = time.perf_counter()
-    print(f"potOutput2 function => {toc - tic:0.4f} seconds")
+    # toc = time.perf_counter()
+    # print(f"potOutput2 function => {toc - tic:0.4f} seconds")
     # print(pot)
     # print(pot2)
     return pot2
@@ -127,14 +122,12 @@ def calculateOutputLayerError (potTabOutput, funcAfterPotOutput, labelTab):
     return errorOutputTab
 
 def calculateHiddenLayerError(potTabHiddenLayer, errorOutputTab, weightL2):
-    tic = time.perf_counter()
+    # tic = time.perf_counter()
     errorHiddenLayerTab = [0] * LAYER_SIZES[1]
 
     for h in range(LAYER_SIZES[1]):
         fx = Fx(potTabHiddenLayer[h])
         derivate = fx * (1 - fx)
-        # partWeightTab = weightL2[h]
-        # sumErrorWeights = np.sum(errorOutputTab * partWeightTab)
 
         localSum = 0
         for i in range(len(errorOutputTab)):
@@ -142,8 +135,8 @@ def calculateHiddenLayerError(potTabHiddenLayer, errorOutputTab, weightL2):
 
         errorHiddenLayerTab[h] = derivate * localSum
 
-    toc = time.perf_counter()
-    print(f"calculateHiddenLayerError function => {toc - tic:0.4f} seconds")
+    # toc = time.perf_counter()
+    # print(f"calculateHiddenLayerError function => {toc - tic:0.4f} seconds")
     # print(errorHiddenLayerTab)
     return errorHiddenLayerTab
 
@@ -163,10 +156,13 @@ def learning (sigmaI, sigmaH, weightL1, weightL2, Xj, Xh):
     # print(weightL1.size)
     # print(len(Xj))
     # print(weightL2)
-    return ;
+    return [weightL1, weightL2];
 
-if __name__ == "__main__":
-    for i in range(1):
+def calculateErrorPercentageOn100Images (weightTab):
+    cpt = 0
+    sumAbsSigmaI = 0
+    maxNumber = 100
+    while cpt < maxNumber :
         returnedValue = readNewImage()
         # print(returnedValue.get("label"))
         # print(returnedValue.get("imageTab"))
@@ -177,7 +173,44 @@ if __name__ == "__main__":
         labelTab = np.array([0] * LAYER_SIZES[2])
         labelTab[label] = 1
 
-        weightTab = initWeightTab()
+        # --- Propagation ---
+        potentialOutputLayer1 = potOutputLayer1Calcul(weightTab[0], imageTab)
+        Xh = functionAfterPot(potentialOutputLayer1)
+        # print(len(potentialOutputLayer1))
+        potentialOutputLayer2 = potOutputLayer2Calcul(weightTab[1], Xh)
+        Xi = functionAfterPot(potentialOutputLayer2)
+        # print(funcAfterPot2)
+
+        # --- Retropropagation ---
+        sigmaI = calculateOutputLayerError(potentialOutputLayer2, Xi, labelTab)
+
+        sumAbsSigmaI += (np.sum(np.abs(sigmaI)))
+
+        cpt +=1
+    sumAbsSigmaI /= maxNumber
+    print(sumAbsSigmaI)
+
+
+def calculateErrorPercentage(sigmaI):
+    # print(sigmaI)
+    # print(np.sum(np.abs(sigmaI)))
+    return np.sum(np.abs(sigmaI))
+
+def launchLearningPart(cpt, weightTab):
+    errorTot = []
+    while cpt < 30000 :
+        returnedValue = readNewImage()
+        # print(returnedValue.get("label"))
+        # print(returnedValue.get("imageTab"))
+        label = returnedValue.get("label")
+        imageTab = returnedValue.get("imageTab") / 255
+
+        # Indicate which label is it => example : if label = 8 => [0,0,0,0,0,0,0,0,1,0]
+        labelTab = np.array([0] * LAYER_SIZES[2])
+        labelTab[label] = 1
+
+        if (len(weightTab) == 0):
+            weightTab = initWeightTab()
         # print(weightTab[1].size)
 
         # --- Propagation ---
@@ -194,7 +227,23 @@ if __name__ == "__main__":
         # print(hiddenLayerError)
 
         # --- Learning ---
-        learning(sigmaI, sigmaH, weightTab[0], weightTab[1], imageTab, Xh)
+        weightTab = learning(sigmaI, sigmaH, weightTab[0], weightTab[1], imageTab, Xh)
+
+        # --- Error ---
+        errorTot.append(calculateErrorPercentage(sigmaI))
+
+        cpt +=1
+
+    calculateErrorPercentageOn100Images(weightTab)
+
+    calculateErrorPercentage(sigmaI)
+    bars=list(range(0, LAYER_SIZES[1]))
+    plt.plot(errorTot, label="error")
+    plt.show()
+
+
+if __name__ == "__main__":
+    launchLearningPart(0, [])
 
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data
