@@ -8,11 +8,24 @@ imageFile = gzip.open('./samples/train-images-idx3-ubyte.gz','r')
 imageFile.read(16)
 labelFile = gzip.open('./samples/train-labels-idx1-ubyte.gz','r')
 labelFile.read(8)
+# imageFile = gzip.open('./samples/t10k-images-idx3-ubyte.gz','r')
+# imageFile.read(16)
+# labelFile = gzip.open('./samples/t10k-labels-idx1-ubyte.gz','r')
+# labelFile.read(8)
+MAX_IMAGE_TRAIN = 59999
 
 # LAYER_SIZES = [3,2,1]
 IMAGE_SIZE = 28
 LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
-EPSILON = 0.01
+EPSILON = 0.1
+
+def reloadImages():
+    global imageFile
+    imageFile = gzip.open('./samples/train-images-idx3-ubyte.gz','r')
+    imageFile.read(16)
+    global labelFile
+    labelFile = gzip.open('./samples/train-labels-idx1-ubyte.gz','r')
+    labelFile.read(8)
 
 # --- READ IMAGE INTO DATASET ---
 def ascii_show(image):
@@ -26,7 +39,6 @@ def ascii_show(image):
 def readNewImage():
     # READ IMAGE (28x28)
     nbImages = 1
-
     buf = imageFile.read(IMAGE_SIZE * IMAGE_SIZE * nbImages)
     data = np.frombuffer(buf, dtype=np.uint8).astype(np.float32)
     data = data.reshape(nbImages, IMAGE_SIZE, IMAGE_SIZE, 1)
@@ -144,14 +156,28 @@ def calculateHiddenLayerError(potTabHiddenLayer, errorOutputTab, weightL2):
 def learning (sigmaI, sigmaH, weightL1, weightL2, Xj, Xh):
     # Wih (t+1) = Wih(t)+eps.sigma i . Xh
     # Whj (t+1) = Whj(t)+eps.sigma h . Xj
-    for i in range(len(sigmaI)):
-        for h in range(len(Xh)):
-            weightL2[i][h] += EPSILON * sigmaI[i] * Xh[h]
+    # for i in range(len(sigmaI)):
+    #     for h in range(len(Xh)):
+    #         weightL2[i][h] += EPSILON * sigmaI[i] * Xh[h]
 
-    for h in range(len(sigmaH)):
-        for j in range(len(Xj)):
-            # print(EPSILON * sigmaH[h] * Xj[j])
-            weightL1[i][h] += EPSILON * sigmaH[h] * Xj[j]
+    XhSize = len(Xh)
+    Xh = np.tile(Xh, (len(sigmaI),1))
+    sigmaI = np.array(XhSize*[sigmaI])
+    sigmaI = np.swapaxes(sigmaI, 0, 1)
+    weightL2 += EPSILON *  Xh * sigmaI
+
+    # TOO LONG ! => keep it -> easier to understand
+    # Whj (t+1) = Whj(t)+eps.sigma h . Xj
+    # for h in range(len(sigmaH)):
+    #     for j in range(len(Xj)):
+    #         # print(EPSILON * sigmaH[h] * Xj[j])
+    #         weightL1[h][j] += EPSILON * sigmaH[h] * Xj[j]
+
+    XjSize = len(Xj)
+    Xj = np.tile(Xj, (len(sigmaH),1))
+    sigmaH = np.array(XjSize*[sigmaH])
+    sigmaH = np.swapaxes(sigmaH, 0, 1)
+    weightL1 += EPSILON *  Xj * sigmaH
 
     # print(weightL1.size)
     # print(len(Xj))
@@ -198,7 +224,12 @@ def calculateErrorPercentage(sigmaI):
 
 def launchLearningPart(cpt, weightTab):
     errorTot = []
-    while cpt < 30000 :
+    errorLast100 = []
+    timeAvr = 0
+    cptLocal = 0
+    while cpt < 50000000 :
+        # tic = time.perf_counter()
+
         returnedValue = readNewImage()
         # print(returnedValue.get("label"))
         # print(returnedValue.get("imageTab"))
@@ -227,19 +258,38 @@ def launchLearningPart(cpt, weightTab):
         # print(hiddenLayerError)
 
         # --- Learning ---
+        # tic = time.perf_counter()
         weightTab = learning(sigmaI, sigmaH, weightTab[0], weightTab[1], imageTab, Xh)
+        # toc = time.perf_counter()
+        # print(f"potOutput1 function => {toc - tic:0.4f} seconds")
 
         # --- Error ---
         errorTot.append(calculateErrorPercentage(sigmaI))
 
-        cpt +=1
+        errorLast100.append(np.sum(np.abs(sigmaI)))
+        if (cpt % 100 == 0):
+            print(cpt," -> ",np.sum(errorLast100)/100)
+            errorLast100.clear()
+            # calculateErrorPercentageOn100Images(weightTab)
 
-    calculateErrorPercentageOn100Images(weightTab)
+        if (cptLocal >= MAX_IMAGE_TRAIN):
+            print("RELOAD")
+            reloadImages()
+            cptLocal = 0
 
-    calculateErrorPercentage(sigmaI)
+        cptLocal += 1
+        cpt += 1
+        # toc = time.perf_counter()
+        # timeAvr += toc - tic
+        # print(f"potOutput1 function => {toc - tic:0.4f} seconds")
+    # print(timeAvr / 200)
+    # calculateErrorPercentageOn100Images(weightTab)
+
+    print(calculateErrorPercentage(sigmaI))
+
     bars=list(range(0, LAYER_SIZES[1]))
     plt.plot(errorTot, label="error")
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
