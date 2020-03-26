@@ -17,7 +17,7 @@ MAX_IMAGE_TRAIN = 59999
 # LAYER_SIZES = [3,2,1]
 IMAGE_SIZE = 28
 LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
-EPSILON = 0.1
+EPSILON = 1
 
 def reloadImages():
     global imageFile
@@ -58,23 +58,17 @@ def readNewImage():
 
     return returnedValues
 
-# ---  ---
+# --- Init weight tab ---
 def initWeightTab():
     weightTab1 = np.random.rand(LAYER_SIZES[1], LAYER_SIZES[0]) / (IMAGE_SIZE * IMAGE_SIZE)
     weightTab2 = np.random.rand(LAYER_SIZES[2], LAYER_SIZES[1]) / (100)
-
-    # print("nombre de dimensions de x1: ", weightTab.ndim)
-    # print("forme de weightTab: ", weightTab.shape)
-    # print("taille de weightTab: ", weightTab.size)
-    # print("type de weightTab: ", weightTab.dtype)
-
     return [weightTab1, weightTab2]
 
 # --- Calculate potential - PROPAGATION PART ---
 def potOutputLayer1Calcul(weightL1, imageTab):
     # tic = time.perf_counter()
     # pot = []
-    pot1 = []
+    potH = []
 
     # localResult = 0
     # for h in range(LAYER_SIZES[1]):
@@ -84,13 +78,13 @@ def potOutputLayer1Calcul(weightL1, imageTab):
     #     pot.append(localResult)
 
     for h in np.arange(LAYER_SIZES[1]):
-        pot1.append(np.sum(weightL1[h] * imageTab))
+        potH.append(np.sum(weightL1[h] * imageTab))
 
     # toc = time.perf_counter()
     # print(f"potOutput1 function => {toc - tic:0.4f} seconds")
     # print(pot)
-    # print(pot1)s
-    return pot1
+    # print(potH)s
+    return potH
 
 def Fx(x):
     return (1 / (1 + np.exp(-x)))
@@ -100,57 +94,54 @@ def functionAfterPot (potentialTab):
         potentialTab[i] = Fx(potentialTab[i])
     return potentialTab
 
-def potOutputLayer2Calcul(weightL2, funcAfterPot1):
+def potOutputLayer2Calcul(weightL2, Xh):
     # tic = time.perf_counter()
     # pot = []
-    pot2 = []
+    potI = []
 
     # localResult = 0
     # for i in range(LAYER_SIZES[2]):
     #     localResult = 0
-    #     for h in range(len(funcAfterPot1)):
-    #         localResult += weightL2[i][h] * funcAfterPot1[h]
+    #     for h in range(len(Xh)):
+    #         localResult += weightL2[i][h] * Xh[h]
     #     pot.append(localResult)
 
     for i in np.arange(LAYER_SIZES[2]):
-        pot2.append(np.sum(weightL2[i] * funcAfterPot1))
+        potI.append(np.sum(weightL2[i] * Xh))
 
     # toc = time.perf_counter()
     # print(f"potOutput2 function => {toc - tic:0.4f} seconds")
     # print(pot)
-    # print(pot2)
-    return pot2
+    # print(potI)
+    return potI
 
 # --- Error calcul - RETROPROPAGATION PART ---
-def calculateOutputLayerError (potTabOutput, funcAfterPotOutput, labelTab):
-    errorOutputTab = [0] * LAYER_SIZES[2]
+def calculateOutputLayerError (potI, xI, labelTab):
+    sigmaI = [0] * LAYER_SIZES[2]
 
     for i in range(LAYER_SIZES[2]):
-        fx = Fx(potTabOutput[i])
+        fx = Fx(potI[i])
         derivate = fx * (1 - fx)
-        errorOutputTab[i] = derivate * labelTab[i] - funcAfterPotOutput[i]
+        sigmaI[i] = (derivate * labelTab[i]) - xI[i]
 
-    # print(errorOutputTab)
-    return errorOutputTab
+    # print(sigmaI)
+    return sigmaI
 
-def calculateHiddenLayerError(potTabHiddenLayer, errorOutputTab, weightL2):
-    # tic = time.perf_counter()
-    errorHiddenLayerTab = [0] * LAYER_SIZES[1]
+def calculateHiddenLayerError(potH, sigmaI, weightL2):
+    sigmaH = [0] * LAYER_SIZES[1]
 
     for h in range(LAYER_SIZES[1]):
-        fx = Fx(potTabHiddenLayer[h])
+        fx = Fx(potH[h])
         derivate = fx * (1 - fx)
 
         localSum = 0
-        for i in range(len(errorOutputTab)):
-            localSum += errorOutputTab[i] * weightL2[i][h]
+        for i in range(len(sigmaI)):
+            localSum += sigmaI[i] * weightL2[i][h]
 
-        errorHiddenLayerTab[h] = derivate * localSum
+        sigmaH[h] = derivate * localSum
 
-    # toc = time.perf_counter()
-    # print(f"calculateHiddenLayerError function => {toc - tic:0.4f} seconds")
-    # print(errorHiddenLayerTab)
-    return errorHiddenLayerTab
+    # print(sigmaH)
+    return sigmaH
 
 # --- LEARNING PART ---
 def learning (sigmaI, sigmaH, weightL1, weightL2, Xj, Xh):
@@ -214,20 +205,27 @@ def calculateErrorPercentageOn100Images (weightTab):
 
         cpt +=1
     sumAbsSigmaI /= maxNumber
-    print(sumAbsSigmaI)
+    # print(sumAbsSigmaI)
+    return sumAbsSigmaI
 
 
 def calculateErrorPercentage(sigmaI):
-    # print(sigmaI)
-    # print(np.sum(np.abs(sigmaI)))
     return np.sum(np.abs(sigmaI))
+
+def updateEpsilon (nb) :
+    global EPSILON
+    EPSILON = nb
 
 def launchLearningPart(cpt, weightTab):
     errorTot = []
     errorLast100 = []
     timeAvr = 0
     cptLocal = 0
-    while cpt < 50000000 :
+    epsilonUpdate = 0
+
+    weightTab = initWeightTab()
+
+    while cpt < 5000000000000 :
         # tic = time.perf_counter()
 
         returnedValue = readNewImage()
@@ -240,21 +238,17 @@ def launchLearningPart(cpt, weightTab):
         labelTab = np.array([0] * LAYER_SIZES[2])
         labelTab[label] = 1
 
-        if (len(weightTab) == 0):
-            weightTab = initWeightTab()
-        # print(weightTab[1].size)
-
         # --- Propagation ---
-        potentialOutputLayer1 = potOutputLayer1Calcul(weightTab[0], imageTab)
-        Xh = functionAfterPot(potentialOutputLayer1)
-        # print(len(potentialOutputLayer1))
-        potentialOutputLayer2 = potOutputLayer2Calcul(weightTab[1], Xh)
-        Xi = functionAfterPot(potentialOutputLayer2)
+        potH = potOutputLayer1Calcul(weightTab[0], imageTab)
+        Xh = functionAfterPot(potH)
+        # print(len(potH))
+        potI = potOutputLayer2Calcul(weightTab[1], Xh)
+        Xi = functionAfterPot(potI)
         # print(funcAfterPot2)
 
         # --- Retropropagation ---
-        sigmaI = calculateOutputLayerError(potentialOutputLayer2, Xi, labelTab)
-        sigmaH = calculateHiddenLayerError(potentialOutputLayer1, sigmaI, weightTab[1])
+        sigmaI = calculateOutputLayerError(potI, Xi, labelTab)
+        sigmaH = calculateHiddenLayerError(potH, sigmaI, weightTab[1])
         # print(hiddenLayerError)
 
         # --- Learning ---
@@ -268,8 +262,20 @@ def launchLearningPart(cpt, weightTab):
 
         errorLast100.append(np.sum(np.abs(sigmaI)))
         if (cpt % 100 == 0):
-            print(cpt," -> ",np.sum(errorLast100)/100)
+            totalSum = np.sum(errorLast100)/len(errorLast100)
             errorLast100.clear()
+            if epsilonUpdate == 0 and totalSum <= 0.22:
+                updateEpsilon(0.1)
+                epsilonUpdate += 1
+            if epsilonUpdate == 1 and totalSum <= 0.13:
+                updateEpsilon(0.01)
+                epsilonUpdate += 1
+            if epsilonUpdate == 2 and totalSum <= 0.08:
+                updateEpsilon(0.001)
+                epsilonUpdate += 1
+            # totalSum = calculateErrorPercentageOn100Images(weightTab)
+            print(cpt,EPSILON," -> ",totalSum)
+
             # calculateErrorPercentageOn100Images(weightTab)
 
         if (cptLocal >= MAX_IMAGE_TRAIN):
