@@ -3,8 +3,28 @@ import matplotlib.pyplot as plt
 import gzip
 import numpy as np
 import time
+import idx2numpy
 
 EPSILON = 0.01
+
+def ascii_show(image):
+    print("\n\n")
+    for y in image:
+        row = ""
+        for x in y:
+            row += '{0: <4}'.format(x)
+        print(row)
+
+def readNewImage():
+    index = 0
+    file = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
+    label = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
+    arrFiles = idx2numpy.convert_from_file(file)
+    arrLabels = idx2numpy.convert_from_file(label)
+    for i in range(1):
+        ascii_show(arrFiles[index])
+        print(arrLabels[index])
+
 
 def test(x,y):
     print('test')
@@ -24,6 +44,12 @@ def goodWork():
     sigmaI = np.swapaxes(sigmaI, 0, 1)
     weightL2 += EPSILON *  Xh * sigmaI
     print(weightL2)
+
+    # XjSize = len(Xj)
+    # Xj = np.tile(Xj, (len(sigmaH),1))
+    # sigmaH = np.array(XjSize*[sigmaH])
+    # sigmaH = np.swapaxes(sigmaH, 0, 1)
+    # weightL1 += EPSILON *  Xj * sigmaH
 
 # OK
 def testPotH():
@@ -82,26 +108,30 @@ def calculateHiddenLayerError():
     for h in range(3):
         fx = Fx(potH[h])
         derivate = fx * (1 - fx)
-        print(derivate)
+        # print(derivate)
 
         localSum = 0
         for i in range(2):
             localSum += sigmaI[i] * weightL2[i][h]
-            print(localSum)
+            # print(localSum)
 
         sigmaH[h] = derivate * localSum
 
     print(sigmaH)
     return sigmaH
 
+
 if __name__ == "__main__":
 
     # goodWork()
+
+    # readNewImage()
+
     # testPotH()
     # potH = testPotH()
     # print(functionAfterPot(potH))
     # calculateOutputLayerError()
-    # calculateHiddenLayerError()
+    calculateHiddenLayerError()
 
     # a = np.random.rand(2,3)
     # b = np.fromfunction(test, a.shape)
