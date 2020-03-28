@@ -54,7 +54,7 @@ def ascii_show(image):
         print(row)
 
 def readNewImage1():
-    index = randrange(1000)
+    index = randrange(10000)
     # ascii_show(ARR_FILES[index])
     # print(ARR_LABELS[index])
 
@@ -184,15 +184,25 @@ def calculateHiddenLayerError(potH, sigmaI, weightL2):
 def learning (sigmaI, sigmaH, weightL1, weightL2, Xj, Xh):
     # Wih (t+1) = Wih(t)+eps.sigma i . Xh
     # Whj (t+1) = Whj(t)+eps.sigma h . Xj
+
+    # CODE OPTIMIZATION
+    # Time1 => 0.07s / image (with 2 for loops)
+    # Time2 => 0.0056s / image (with the second way to update weights)
+    # Time3 => 0.0006s / image (with transpose method)
+
+
     # for i in range(len(sigmaI)):
     #     for h in range(len(Xh)):
     #         weightL2[i][h] += EPSILON * sigmaI[i] * Xh[h]
 
-    XhSize = len(Xh)
+    # XhSize = len(Xh)
+    # Xh = np.tile(Xh, (len(sigmaI),1))
+    # sigmaI = np.array(XhSize*[sigmaI])
+    # sigmaI = np.swapaxes(sigmaI, 0, 1)
+    # weightL2 += EPSILON *  Xh * sigmaI
+
     Xh = np.tile(Xh, (len(sigmaI),1))
-    sigmaI = np.array(XhSize*[sigmaI])
-    sigmaI = np.swapaxes(sigmaI, 0, 1)
-    weightL2 += EPSILON *  Xh * sigmaI
+    weightL2 += EPSILON *  Xh * np.transpose(np.array([sigmaI,]))
 
     # TOO LONG ! => keep it -> easier to understand
     # Whj (t+1) = Whj(t)+eps.sigma h . Xj
@@ -201,11 +211,14 @@ def learning (sigmaI, sigmaH, weightL1, weightL2, Xj, Xh):
     #         # print(EPSILON * sigmaH[h] * Xj[j])
     #         weightL1[h][j] += EPSILON * sigmaH[h] * Xj[j]
 
-    XjSize = len(Xj)
+    # XjSize = len(Xj)
+    # Xj = np.tile(Xj, (len(sigmaH),1))
+    # sigmaH = np.array(XjSize*[sigmaH])
+    # sigmaH = np.swapaxes(sigmaH, 0, 1)
+    # weightL1 += EPSILON * Xj * sigmaH
+
     Xj = np.tile(Xj, (len(sigmaH),1))
-    sigmaH = np.array(XjSize*[sigmaH])
-    sigmaH = np.swapaxes(sigmaH, 0, 1)
-    weightL1 += EPSILON *  Xj * sigmaH
+    weightL1 += EPSILON * Xj * np.transpose(np.array([sigmaH,]))
 
     # print(weightL1.size)
     # print(len(Xj))
@@ -264,15 +277,18 @@ def launchLearningPart(cpt, weightTab):
 
     weightTab = initWeightTab()
 
-    while cpt < 5000000000 :
+    while cpt < 500000000000 :
 
-        # tic = time.perf_counter()
+        tic = time.perf_counter()
+        # toc = time.perf_counter()
+        # print(f"1 image => {toc - tic:0.4f} seconds")
 
         returnedValue = readNewImage1()
         # returnedValue = readNewImage()
 
         # print(returnedValue.get("label"))
         # print(returnedValue.get("imageTab"))
+
         label = returnedValue.get("label")
         imageTab = returnedValue.get("imageTab") / 255
         # print(imageTab)
@@ -322,56 +338,22 @@ def launchLearningPart(cpt, weightTab):
         if (cpt % 1000 == 0):
             checkError = 1
 
-        # toc = time.perf_counter()
-        # print(f"potOutput1 function => {toc - tic:0.4f} seconds")
+        toc = time.perf_counter()
+        # print(f"1 image => {toc - tic:0.4f} seconds")
 
         # --- Error ---
         errorTot.append(calculateErrorPercentage(sigmaI))
 
-        # errorLast100.append(np.sum(np.abs(sigmaI)))
-        # if (cpt % MAX_IMAGE_TRAIN == 0):
-        #     testData.append(sigmaI[0])
-        #     totalSum = np.sum(errorLast100)/len(errorLast100)
-        #     # totalSum1 = np.sum(np.abs(sigmaI))
-        #     # totalSum = calculateErrorPercentageOn100Images(weightTab)
-        #     errorLast100.clear()
-        #     if epsilonUpdate == 0 and totalSum <= 0.25:
-        #         updateEpsilon(0.1)
-        #         epsilonUpdate += 1
-        #     if epsilonUpdate == 1 and totalSum <= 0.16:
-        #         updateEpsilon(0.01)
-        #         epsilonUpdate += 1
-        #     if epsilonUpdate == 2 and totalSum <= 0.07:
-        #         updateEpsilon(0.001)
-        #         epsilonUpdate += 1
-
-        #     print(cpt,EPSILON, " -> ",totalSum)
-
-            # calculateErrorPercentageOn100Images(weightTab)
-
-        # if (cptLocal >= MAX_IMAGE_TRAIN):
-        #     print("RELOAD")
-        #     reloadImages()
-        #     cptLocal = 0
-            # global SHOW_IMG
-            # SHOW_IMG += 1
-            # if (SHOW_IMG == 20):
-            #     SHOW_IMG = 0
-            #     plt.plot(testData, label="testData SigmaI[0]")
-            #     plt.show()
-
-        # cptLocal += 1
         cpt += 1
         # toc = time.perf_counter()
-        # timeAvr += toc - tic
+        timeAvr += toc - tic
         # print(f"potOutput1 function => {toc - tic:0.4f} seconds")
-    # print(timeAvr / 200)
+    # print("temps moyen ", timeAvr / 200)
+    # print(timeAvr)
     # calculateErrorPercentageOn100Images(weightTab)
 
-    print(calculateErrorPercentage(sigmaI))
-
-    bars=list(range(0, LAYER_SIZES[1]))
-    plt.plot(errorTot, label="error")
+    # bars=list(range(0, LAYER_SIZES[1]))
+    # plt.plot(errorTot, label="error")
     # plt.show()
 
 

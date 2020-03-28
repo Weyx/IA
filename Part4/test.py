@@ -39,10 +39,14 @@ def goodWork():
 
     print(sigmaI)
     print(Xh)
+    # Xh = np.tile(Xh, (len(sigmaI),1))
+    # sigmaI = np.array(XhSize*[sigmaI])
+    # sigmaI = np.swapaxes(sigmaI, 0, 1)
+    # weightL2 += EPSILON *  Xh * sigmaI
+    # print(weightL2)
+
     Xh = np.tile(Xh, (len(sigmaI),1))
-    sigmaI = np.array(XhSize*[sigmaI])
-    sigmaI = np.swapaxes(sigmaI, 0, 1)
-    weightL2 += EPSILON *  Xh * sigmaI
+    weightL2 += EPSILON * Xh * np.transpose(np.array([sigmaI,]))
     print(weightL2)
 
     # XjSize = len(Xj)
@@ -123,7 +127,7 @@ def calculateHiddenLayerError():
 
 if __name__ == "__main__":
 
-    # goodWork()
+    goodWork()
 
     # readNewImage()
 
@@ -131,7 +135,7 @@ if __name__ == "__main__":
     # potH = testPotH()
     # print(functionAfterPot(potH))
     # calculateOutputLayerError()
-    calculateHiddenLayerError()
+    # calculateHiddenLayerError()
 
     # a = np.random.rand(2,3)
     # b = np.fromfunction(test, a.shape)
