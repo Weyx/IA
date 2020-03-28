@@ -24,7 +24,8 @@ LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
 EPSILON = 1
 SHOW_IMG = 0
 
-NB_IMG = 1200
+NB_IMG = 60000
+RATES = [0.25, 0.09, 0.04]
 
 FILE = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
 LABEL = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
@@ -324,17 +325,17 @@ def launchLearningPart(cpt, weightTab):
             if (checkError == 100):
                 totalSum = np.sum(errorLast100)/len(errorLast100)
                 errorLast100.clear()
-                if epsilonUpdate == 0 and totalSum <= 0.25:
+                if epsilonUpdate == 0 and totalSum <= RATES[0]:
                     updateEpsilon(0.1)
                     epsilonUpdate += 1
-                if epsilonUpdate == 1 and totalSum <= 0.07:
+                if epsilonUpdate == 1 and totalSum <= RATES[1]:
                     updateEpsilon(0.01)
                     epsilonUpdate += 1
-                if epsilonUpdate == 2 and totalSum <= 0.03:
+                if epsilonUpdate == 2 and totalSum <= RATES[2]:
                     updateEpsilon(0.001)
                     epsilonUpdate += 1
 
-                print(cpt,EPSILON, NB_IMG, " -> ",totalSum)
+                print(cpt,EPSILON, NB_IMG, " -> ",totalSum, RATES)
                 checkError = 0
 
         if (cpt % 1000 == 0):
