@@ -24,6 +24,8 @@ LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
 EPSILON = 1
 SHOW_IMG = 0
 
+NB_IMG = 1200
+
 FILE = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
 LABEL = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
 ARR_FILES = idx2numpy.convert_from_file(FILE)
@@ -54,7 +56,7 @@ def ascii_show(image):
         print(row)
 
 def readNewImage1():
-    index = randrange(10000)
+    index = randrange(NB_IMG)
     # ascii_show(ARR_FILES[index])
     # print(ARR_LABELS[index])
 
@@ -325,14 +327,14 @@ def launchLearningPart(cpt, weightTab):
                 if epsilonUpdate == 0 and totalSum <= 0.25:
                     updateEpsilon(0.1)
                     epsilonUpdate += 1
-                if epsilonUpdate == 1 and totalSum <= 0.11:
+                if epsilonUpdate == 1 and totalSum <= 0.07:
                     updateEpsilon(0.01)
                     epsilonUpdate += 1
-                if epsilonUpdate == 2 and totalSum <= 0.07:
+                if epsilonUpdate == 2 and totalSum <= 0.03:
                     updateEpsilon(0.001)
                     epsilonUpdate += 1
 
-                print(cpt,EPSILON, " -> ",totalSum)
+                print(cpt,EPSILON, NB_IMG, " -> ",totalSum)
                 checkError = 0
 
         if (cpt % 1000 == 0):
