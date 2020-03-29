@@ -24,8 +24,10 @@ SHOW_IMG = 0
 
 NB_IMG_TRAIN = 60000
 NB_IMG_TEST = 10000
-RATES = [0.25, 0.09, 0.04]
-RATE_ERROR_MIN = 0.12
+RATES = [0.25, 0.07, 0.04]
+RATE_ERROR_MIN = 0.09
+TEST_NB = 10000
+MAX_ITERATION_TRAIN = 300000
 
 FILES_TRAIN = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
 LABELS_TRAIN = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
@@ -285,33 +287,13 @@ def updateEpsilon (nb) :
     EPSILON = nb
 
 def modelTested(weightTab):
-    errorLast100 = []
-    timeAvr = 0
-    epsilonUpdate = 0
-    checkError = 0
-    sigmaI_SAVED = {}
-
     cpt = 0
     error = 0
 
-    # while cpt < 500000000000 :
-    while cpt < 10000 :
-
-        # tic = time.perf_counter()
-        # toc = time.perf_counter()
-        # print(f"1 image => {toc - tic:0.4f} seconds")
-
+    while cpt < TEST_NB :
         returnedValue = readNewImage1("test")
-
-        # print(returnedValue.get("label"))
-        # print(returnedValue.get("imageTab"))
-
         label = returnedValue.get("label")
         imageTab = returnedValue.get("imageTab") / 255.0
-
-        # Indicate which label is it => example : if label = 8 => [0,0,0,0,0,0,0,0,1,0]
-        labelTab = np.array([0] * LAYER_SIZES[2])
-        labelTab[label] = 1
 
         # --- Propagation ---
         potH = potOutputLayer1Calcul(weightTab[0], imageTab)
@@ -319,13 +301,12 @@ def modelTested(weightTab):
         potI = potOutputLayer2Calcul(weightTab[1], Xh)
         Xi = functionAfterPot(potI)
 
-        # --- Retropropagation ---
-        sigmaI = calculateOutputLayerError(potI, Xi, labelTab)
+        # print(label)
+        # print(Xi, "\n")
 
-        # result = np.where(sigmaI == np.amin(sigmaI))
-        valueFound = np.argmax(np.abs(sigmaI))
-        print("Value found is ", valueFound, "(exact value : ",label,")")
-        print(sigmaI, "\n")
+        valueFound = np.argmax(Xi)
+        # print("Value found is ", valueFound, "(exact value : ",label,")")
+        # print(sigmaI, "\n")
 
         if (valueFound != label):
             error += 1
@@ -344,7 +325,7 @@ def launchLearningPart(cpt, weightTab):
     weightTab = initWeightTab()
 
     # while cpt < 500000000000 :
-    while totalSum > RATE_ERROR_MIN :
+    while totalSum > RATE_ERROR_MIN and cpt < MAX_ITERATION_TRAIN :
 
         # tic = time.perf_counter()
         # toc = time.perf_counter()
@@ -384,16 +365,16 @@ def launchLearningPart(cpt, weightTab):
         if (checkError == 0) :
             weightTab = learning(sigmaI, sigmaH, weightTab[0], weightTab[1], imageTab, Xh)
         else :
-            if (checkError == 99):
-                print('\n')
+            # if (checkError == 99):
+                # print('\n')
                 # print(sigmaI)
                 # print(np.abs(sigmaI))
                 # print(np.sum(np.abs(sigmaI)))
                 # print(np.sort(errorLast100))
                 # print(np.sort(sigmaI_SAVED))
-                for i in sorted (sigmaI_SAVED) :
-                    print ((i, sigmaI_SAVED[i]), end =" ")
-                print('\n')
+                # for i in sorted (sigmaI_SAVED) :
+                #     print ((i, sigmaI_SAVED[i]), end =" ")
+                # print('\n')
             sumSigmaI = np.sum(np.abs(sigmaI))
             sigmaI_SAVED[sumSigmaI] = label
             errorLast100.append(sumSigmaI)
@@ -412,7 +393,7 @@ def launchLearningPart(cpt, weightTab):
                     updateEpsilon(0.001)
                     epsilonUpdate += 1
 
-                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES)
+                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
                 checkError = 0
 
         if (cpt % 1000 == 0):
