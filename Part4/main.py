@@ -22,12 +22,12 @@ LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
 EPSILON = 1
 SHOW_IMG = 0
 
-NB_IMG_TRAIN = 60000
+NB_IMG_TRAIN = 5000
 NB_IMG_TEST = 10000
-RATES = [0.25, 0.07, 0.04]
+RATES = [0.25, 0.04, 0.02]
 RATE_ERROR_MIN = 0.09
 TEST_NB = 10000
-MAX_ITERATION_TRAIN = 300000
+MAX_ITERATION_TRAIN = 30000000
 
 FILES_TRAIN = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
 LABELS_TRAIN = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
@@ -286,12 +286,12 @@ def updateEpsilon (nb) :
     global EPSILON
     EPSILON = nb
 
-def modelTested(weightTab):
+def modelTested(weightTab, testNb = TEST_NB, testType = "test", totalSumSigmaI = 1):
     cpt = 0
     error = 0
 
-    while cpt < TEST_NB :
-        returnedValue = readNewImage1("test")
+    while cpt < testNb :
+        returnedValue = readNewImage1(testType)
         label = returnedValue.get("label")
         imageTab = returnedValue.get("imageTab") / 255.0
 
@@ -312,7 +312,9 @@ def modelTested(weightTab):
             error += 1
 
         cpt += 1
-    print("Nb error : ", error)
+    errorPercentage = error/testNb
+    print("Error percentage : ", errorPercentage, totalSumSigmaI)
+    return errorPercentage
 
 def launchLearningPart(cpt, weightTab):
     errorLast100 = []
@@ -365,16 +367,7 @@ def launchLearningPart(cpt, weightTab):
         if (checkError == 0) :
             weightTab = learning(sigmaI, sigmaH, weightTab[0], weightTab[1], imageTab, Xh)
         else :
-            # if (checkError == 99):
-                # print('\n')
-                # print(sigmaI)
-                # print(np.abs(sigmaI))
-                # print(np.sum(np.abs(sigmaI)))
-                # print(np.sort(errorLast100))
-                # print(np.sort(sigmaI_SAVED))
-                # for i in sorted (sigmaI_SAVED) :
-                #     print ((i, sigmaI_SAVED[i]), end =" ")
-                # print('\n')
+
             sumSigmaI = np.sum(np.abs(sigmaI))
             sigmaI_SAVED[sumSigmaI] = label
             errorLast100.append(sumSigmaI)
@@ -383,21 +376,24 @@ def launchLearningPart(cpt, weightTab):
                 totalSum = np.sum(errorLast100)/len(errorLast100)
                 errorLast100.clear()
                 sigmaI_SAVED = {}
-                if epsilonUpdate == 0 and totalSum <= RATES[0]:
+                totalErrorPercentage = modelTested(weightTab, 200, "train", totalSum)
+                if epsilonUpdate == 0 and totalErrorPercentage <= RATES[0]:
                     updateEpsilon(0.1)
                     epsilonUpdate += 1
-                if epsilonUpdate == 1 and totalSum <= RATES[1]:
+                if epsilonUpdate == 1 and totalErrorPercentage <= RATES[1]:
                     updateEpsilon(0.01)
                     epsilonUpdate += 1
-                if epsilonUpdate == 2 and totalSum <= RATES[2]:
+                if epsilonUpdate == 2 and totalErrorPercentage <= RATES[2]:
                     updateEpsilon(0.001)
                     epsilonUpdate += 1
 
-                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
+            #     print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
                 checkError = 0
 
         if (cpt % 1000 == 0):
             checkError = 1
+        if (cpt % 10000 == 0):
+            print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
 
         # toc = time.perf_counter()
         # print(f"1 image => {toc - tic:0.4f} seconds")
@@ -421,7 +417,7 @@ def launchLearningPart(cpt, weightTab):
 
 
 if __name__ == "__main__":
-    weightTab = launchLearningPart(1, [])
+    weightTab = launchLearningPart(0, [])
     modelTested(weightTab)
 
 
