@@ -10,13 +10,11 @@ from random import randrange
 # imageFile.read(16)
 # labelFile = gzip.open('./samples/train-labels-idx1-ubyte.gz','r')
 # labelFile.read(8)
-# MAX_IMAGE_TRAIN = 59999
 
 imageFile = gzip.open('./samples/t10k-images-idx3-ubyte.gz','r')
 imageFile.read(16)
 labelFile = gzip.open('./samples/t10k-labels-idx1-ubyte.gz','r')
 labelFile.read(8)
-MAX_IMAGE_TRAIN = 100
 
 # LAYER_SIZES = [3,2,1]
 IMAGE_SIZE = 28
@@ -24,13 +22,22 @@ LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
 EPSILON = 1
 SHOW_IMG = 0
 
-NB_IMG = 60000
+NB_IMG_TRAIN = 60000
+NB_IMG_TEST = 10000
 RATES = [0.25, 0.09, 0.04]
+RATE_ERROR_MIN = 0.12
 
-FILE = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
-LABEL = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
-ARR_FILES = idx2numpy.convert_from_file(FILE)
-ARR_LABELS = idx2numpy.convert_from_file(LABEL)
+FILES_TRAIN = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
+LABELS_TRAIN = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
+ARR_FILES_TRAIN = idx2numpy.convert_from_file(FILES_TRAIN)
+ARR_LABELS_TRAIN = idx2numpy.convert_from_file(LABELS_TRAIN)
+
+FILES_TEST = './samples/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte'
+LABELS_TEST = './samples/t10k-labels-idx1-ubyte/t10k-labels.idx1-ubyte'
+ARR_FILES_TEST = idx2numpy.convert_from_file(FILES_TEST)
+ARR_LABELS_TEST = idx2numpy.convert_from_file(LABELS_TEST)
+
+
 
 def reloadImages():
     # global imageFile
@@ -56,16 +63,24 @@ def ascii_show(image):
             row += '{0: <4}'.format(x)
         print(row)
 
-def readNewImage1():
-    index = randrange(NB_IMG)
-    # ascii_show(ARR_FILES[index])
-    # print(ARR_LABELS[index])
-
-    imageConcatened = np.concatenate(ARR_FILES[index][0:IMAGE_SIZE])
-
+def readNewImage1(choice):
     returnedValues = dict()
+
+    if (choice == "train"):
+        index = randrange(NB_IMG_TRAIN)
+        # ascii_show(ARR_FILES_TRAIN[index])
+        # print(ARR_LABELS_TRAIN[index])
+        imageConcatened = np.concatenate(ARR_FILES_TRAIN[index][0:IMAGE_SIZE])
+        returnedValues['label'] = ARR_LABELS_TRAIN[index]
+    else :
+        index = randrange(NB_IMG_TEST)
+        imageConcatened = np.concatenate(ARR_FILES_TEST[index][0:IMAGE_SIZE])
+        returnedValues['label'] = ARR_LABELS_TEST[index]
+        # ascii_show(ARR_FILES_TEST[index])
+        # print(ARR_LABELS_TEST[index])
+
+
     returnedValues['imageTab'] = imageConcatened
-    returnedValues['label'] = ARR_LABELS[index]
     # print(imageConcated)
     return returnedValues
 
@@ -269,31 +284,80 @@ def updateEpsilon (nb) :
     global EPSILON
     EPSILON = nb
 
-def launchLearningPart(cpt, weightTab):
-    errorTot = []
+def modelTested(weightTab):
     errorLast100 = []
     timeAvr = 0
-    cptLocal = 0
     epsilonUpdate = 0
-    testData = []
     checkError = 0
+    sigmaI_SAVED = {}
 
-    weightTab = initWeightTab()
+    cpt = 0
+    error = 0
 
-    while cpt < 500000000000 :
+    # while cpt < 500000000000 :
+    while cpt < 10000 :
 
-        tic = time.perf_counter()
+        # tic = time.perf_counter()
         # toc = time.perf_counter()
         # print(f"1 image => {toc - tic:0.4f} seconds")
 
-        returnedValue = readNewImage1()
+        returnedValue = readNewImage1("test")
+
+        # print(returnedValue.get("label"))
+        # print(returnedValue.get("imageTab"))
+
+        label = returnedValue.get("label")
+        imageTab = returnedValue.get("imageTab") / 255.0
+
+        # Indicate which label is it => example : if label = 8 => [0,0,0,0,0,0,0,0,1,0]
+        labelTab = np.array([0] * LAYER_SIZES[2])
+        labelTab[label] = 1
+
+        # --- Propagation ---
+        potH = potOutputLayer1Calcul(weightTab[0], imageTab)
+        Xh = functionAfterPot(potH)
+        potI = potOutputLayer2Calcul(weightTab[1], Xh)
+        Xi = functionAfterPot(potI)
+
+        # --- Retropropagation ---
+        sigmaI = calculateOutputLayerError(potI, Xi, labelTab)
+
+        # result = np.where(sigmaI == np.amin(sigmaI))
+        valueFound = np.argmax(np.abs(sigmaI))
+        print("Value found is ", valueFound, "(exact value : ",label,")")
+        print(sigmaI, "\n")
+
+        if (valueFound != label):
+            error += 1
+
+        cpt += 1
+    print("Nb error : ", error)
+
+def launchLearningPart(cpt, weightTab):
+    errorLast100 = []
+    timeAvr = 0
+    epsilonUpdate = 0
+    checkError = 0
+    sigmaI_SAVED = {}
+    totalSum = 1
+
+    weightTab = initWeightTab()
+
+    # while cpt < 500000000000 :
+    while totalSum > RATE_ERROR_MIN :
+
+        # tic = time.perf_counter()
+        # toc = time.perf_counter()
+        # print(f"1 image => {toc - tic:0.4f} seconds")
+
+        returnedValue = readNewImage1("train")
         # returnedValue = readNewImage()
 
         # print(returnedValue.get("label"))
         # print(returnedValue.get("imageTab"))
 
         label = returnedValue.get("label")
-        imageTab = returnedValue.get("imageTab") / 255
+        imageTab = returnedValue.get("imageTab") / 255.0
         # print(imageTab)
         # print(len(imageTab))
 
@@ -320,11 +384,24 @@ def launchLearningPart(cpt, weightTab):
         if (checkError == 0) :
             weightTab = learning(sigmaI, sigmaH, weightTab[0], weightTab[1], imageTab, Xh)
         else :
-            errorLast100.append(np.sum(np.abs(sigmaI)))
+            if (checkError == 99):
+                print('\n')
+                # print(sigmaI)
+                # print(np.abs(sigmaI))
+                # print(np.sum(np.abs(sigmaI)))
+                # print(np.sort(errorLast100))
+                # print(np.sort(sigmaI_SAVED))
+                for i in sorted (sigmaI_SAVED) :
+                    print ((i, sigmaI_SAVED[i]), end =" ")
+                print('\n')
+            sumSigmaI = np.sum(np.abs(sigmaI))
+            sigmaI_SAVED[sumSigmaI] = label
+            errorLast100.append(sumSigmaI)
             checkError += 1
             if (checkError == 100):
                 totalSum = np.sum(errorLast100)/len(errorLast100)
                 errorLast100.clear()
+                sigmaI_SAVED = {}
                 if epsilonUpdate == 0 and totalSum <= RATES[0]:
                     updateEpsilon(0.1)
                     epsilonUpdate += 1
@@ -335,21 +412,21 @@ def launchLearningPart(cpt, weightTab):
                     updateEpsilon(0.001)
                     epsilonUpdate += 1
 
-                print(cpt,EPSILON, NB_IMG, " -> ",totalSum, RATES)
+                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES)
                 checkError = 0
 
         if (cpt % 1000 == 0):
             checkError = 1
 
-        toc = time.perf_counter()
+        # toc = time.perf_counter()
         # print(f"1 image => {toc - tic:0.4f} seconds")
 
         # --- Error ---
-        errorTot.append(calculateErrorPercentage(sigmaI))
+        # calculateErrorPercentage(sigmaI)
 
         cpt += 1
         # toc = time.perf_counter()
-        timeAvr += toc - tic
+        # timeAvr += toc - tic
         # print(f"potOutput1 function => {toc - tic:0.4f} seconds")
     # print("temps moyen ", timeAvr / 200)
     # print(timeAvr)
@@ -359,9 +436,12 @@ def launchLearningPart(cpt, weightTab):
     # plt.plot(errorTot, label="error")
     # plt.show()
 
+    return weightTab
+
 
 if __name__ == "__main__":
-    launchLearningPart(1, [])
+    weightTab = launchLearningPart(1, [])
+    modelTested(weightTab)
 
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data
