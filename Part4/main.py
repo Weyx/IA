@@ -22,10 +22,10 @@ LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
 EPSILON = 1
 SHOW_IMG = 0
 
-NB_IMG_TRAIN = 5000
+NB_IMG_TRAIN = 1000
 NB_IMG_TEST = 10000
-RATES = [0.25, 0.04, 0.02]
-RATE_ERROR_MIN = 0.09
+RATES = [0.25, 0.05, 0.03]
+RATE_ERROR_MIN = 0.04
 TEST_NB = 10000
 MAX_ITERATION_TRAIN = 30000000
 
@@ -376,24 +376,24 @@ def launchLearningPart(cpt, weightTab):
                 totalSum = np.sum(errorLast100)/len(errorLast100)
                 errorLast100.clear()
                 sigmaI_SAVED = {}
-                totalErrorPercentage = modelTested(weightTab, 200, "train", totalSum)
-                if epsilonUpdate == 0 and totalErrorPercentage <= RATES[0]:
+                # totalErrorPercentage = modelTested(weightTab, 200, "train", totalSum)
+                if epsilonUpdate == 0 and totalSum <= RATES[0]:
                     updateEpsilon(0.1)
                     epsilonUpdate += 1
-                if epsilonUpdate == 1 and totalErrorPercentage <= RATES[1]:
+                if epsilonUpdate == 1 and totalSum <= RATES[1]:
                     updateEpsilon(0.01)
                     epsilonUpdate += 1
-                if epsilonUpdate == 2 and totalErrorPercentage <= RATES[2]:
+                if epsilonUpdate == 2 and totalSum <= RATES[2]:
                     updateEpsilon(0.001)
                     epsilonUpdate += 1
 
-            #     print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
+                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
                 checkError = 0
 
         if (cpt % 1000 == 0):
             checkError = 1
-        if (cpt % 10000 == 0):
-            print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
+        # if (cpt % 10000 == 0):
+            # print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
 
         # toc = time.perf_counter()
         # print(f"1 image => {toc - tic:0.4f} seconds")
@@ -418,7 +418,7 @@ def launchLearningPart(cpt, weightTab):
 
 if __name__ == "__main__":
     weightTab = launchLearningPart(0, [])
-    modelTested(weightTab)
+    modelTested(weightTab, 1000, 'test')
 
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data
