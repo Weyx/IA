@@ -16,18 +16,16 @@ imageFile.read(16)
 labelFile = gzip.open('./samples/t10k-labels-idx1-ubyte.gz','r')
 labelFile.read(8)
 
-# LAYER_SIZES = [3,2,1]
 IMAGE_SIZE = 28
 LAYER_SIZES = [IMAGE_SIZE * IMAGE_SIZE, 100, 10]
 EPSILON = 1
-SHOW_IMG = 0
 
-NB_IMG_TRAIN = 1000
+NB_IMG_TRAIN = 60000
 NB_IMG_TEST = 10000
-RATES = [0.25, 0.09, 0.07]
-RATE_ERROR_MIN = 0.78
+RATES = [0.86, 0.83, 0.78]
+RATE_ERROR_MIN = 0.8
 TEST_NB = 10000
-MAX_ITERATION_TRAIN = 100000
+MAX_ITERATION_TRAIN = 200000
 
 FILES_TRAIN = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
 LABELS_TRAIN = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
@@ -101,12 +99,6 @@ def readNewImage():
     buf = labelFile.read(1)
     label = np.frombuffer(buf, dtype=np.uint8).astype(np.int64)
     # print(label)
-
-    # global SHOW_IMG
-    # if (SHOW_IMG < 5):
-    #     ascii_show(image)
-    #     SHOW_IMG +=1
-    #     print(label)
 
     returnedValues = dict()
     returnedValues['imageTab'] = imageConcated
@@ -301,23 +293,21 @@ def modelTested(weightTab, testNb = TEST_NB, testType = "test", totalSumSigmaI =
         potI = potOutputLayer2Calcul(weightTab[1], Xh)
         Xi = functionAfterPot(potI)
 
-        # print(label)
-        # print(Xi, "\n")
-
         valueFound = np.argmax(Xi)
         # print("Value found is ", valueFound, "(exact value : ",label,")")
-        # print(sigmaI, "\n")
+        # print(Xi)
 
         if (valueFound != label):
             error += 1
 
         cpt += 1
     errorPercentage = error/testNb
-    print("Error percentage : ", errorPercentage, totalSumSigmaI)
+    print(f"Error percentage : {errorPercentage} ({(1-errorPercentage)*100:0.1f}% of recognition)")
     return errorPercentage
 
 def launchLearningPart(cpt, weightTab):
     errorLast100 = []
+    errorTab= []
     timeAvr = 0
     epsilonUpdate = 0
     checkError = 0
@@ -374,8 +364,8 @@ def launchLearningPart(cpt, weightTab):
             # errorLast100.append(sumSigmaI)
             checkError += 1
             if (checkError == 100):
-                totalSum = np.sum(errorLast100)/len(errorLast100)
-
+                totalError = np.sum(errorLast100)/len(errorLast100)
+                errorTab.append(totalError)
                 # TEST CALCUL ERROR
                 # print(np.sum(np.abs(labelTab - Xi)))
                 # print(labelTab)
@@ -388,24 +378,25 @@ def launchLearningPart(cpt, weightTab):
 
                 errorLast100.clear()
                 sigmaI_SAVED = {}
-                # totalErrorPercentage = modelTested(weightTab, 200, "train", totalSum)
-                if epsilonUpdate == 0 and totalSum <= RATES[0]:
+                # totalErrorPercentage = modelTested(weightTab, 200, "train", totalError)
+                if epsilonUpdate == 0 and totalError <= RATES[0]:
                     updateEpsilon(0.1)
                     epsilonUpdate += 1
-                if epsilonUpdate == 1 and totalSum <= RATES[1]:
+                if epsilonUpdate == 1 and totalError <= RATES[1]:
                     updateEpsilon(0.01)
                     epsilonUpdate += 1
-                if epsilonUpdate == 2 and totalSum <= RATES[2]:
+                if epsilonUpdate == 2 and totalError <= RATES[2]:
                     updateEpsilon(0.001)
                     epsilonUpdate += 1
 
-                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
+                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalError, RATES, RATE_ERROR_MIN)
+                # print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalError, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
                 checkError = 0
 
         if (cpt % 1000 == 0):
             checkError = 1
         # if (cpt % 10000 == 0):
-            # print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalSum, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
+            # print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalError, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
 
         # toc = time.perf_counter()
         # print(f"1 image => {toc - tic:0.4f} seconds")
@@ -422,16 +413,18 @@ def launchLearningPart(cpt, weightTab):
     # calculateErrorPercentageOn100Images(weightTab)
 
     # bars=list(range(0, LAYER_SIZES[1]))
-    # plt.plot(errorTot, label="error")
-    # plt.show()
+    plt.ylabel('Error (Somme(|Ydki - Xi|))')
+    plt.xlabel('Iterations (k = *1000)')
+    plt.title('TD1 - 4 : MNIST')
+    plt.plot(errorTab, label="error")
+    plt.show()
 
     return weightTab
 
 
 if __name__ == "__main__":
     weightTab = launchLearningPart(0, [])
-    modelTested(weightTab, 10000, 'test')
-    modelTested(weightTab, 10000, 'train')
+    modelTested(weightTab, 1000, 'test')
 
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data
