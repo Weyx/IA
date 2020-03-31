@@ -24,10 +24,10 @@ SHOW_IMG = 0
 
 NB_IMG_TRAIN = 1000
 NB_IMG_TEST = 10000
-RATES = [0.25, 0.05, 0.03]
-RATE_ERROR_MIN = 0.04
+RATES = [0.25, 0.09, 0.07]
+RATE_ERROR_MIN = 0.78
 TEST_NB = 10000
-MAX_ITERATION_TRAIN = 30000000
+MAX_ITERATION_TRAIN = 100000
 
 FILES_TRAIN = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
 LABELS_TRAIN = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
@@ -140,7 +140,7 @@ def potOutputLayer1Calcul(weightL1, imageTab):
     # toc = time.perf_counter()
     # print(f"potOutput1 function => {toc - tic:0.4f} seconds")
     # print(pot)
-    # print(potH)s
+    # print(potH)
     return potH
 
 def Fx(x):
@@ -370,10 +370,22 @@ def launchLearningPart(cpt, weightTab):
 
             sumSigmaI = np.sum(np.abs(sigmaI))
             sigmaI_SAVED[sumSigmaI] = label
-            errorLast100.append(sumSigmaI)
+            errorLast100.append(np.sum(np.abs(labelTab - Xi)))
+            # errorLast100.append(sumSigmaI)
             checkError += 1
             if (checkError == 100):
                 totalSum = np.sum(errorLast100)/len(errorLast100)
+
+                # TEST CALCUL ERROR
+                # print(np.sum(np.abs(labelTab - Xi)))
+                # print(labelTab)
+                # print(Xi)
+                # print(labelTab - Xi)
+                # print(np.abs(labelTab - Xi))
+                # print(np.sum(np.abs(labelTab - Xi)))
+                # print("\n")
+
+
                 errorLast100.clear()
                 sigmaI_SAVED = {}
                 # totalErrorPercentage = modelTested(weightTab, 200, "train", totalSum)
@@ -418,7 +430,8 @@ def launchLearningPart(cpt, weightTab):
 
 if __name__ == "__main__":
     weightTab = launchLearningPart(0, [])
-    modelTested(weightTab, 1000, 'test')
+    modelTested(weightTab, 10000, 'test')
+    modelTested(weightTab, 10000, 'train')
 
 
 #https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python => first url used to read in gz file and extract data
