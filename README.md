@@ -70,6 +70,54 @@ Par ailleurs, après analyse des graphes ci-dessus, nous pouvons remarquer que c
 - le nombre 8 avec le nombre 6 (resp. 73% et 12%)
 
 
+## Partie 4 - MNIST modèle
+
+L'objectif ici était d'entrainer un réseau de neurones composée de 3 couches dont une cachées :
+- 1ère couche (input) de 784 neurones car on utilise des images de 28*28 neurones
+- 2ème couche (cachée) de 100 neurones
+- 3ème couche (output) de 10 neurones représentant ainsi nos 10 classes (de 0 à 9)
+
+Nous avons ainsi utilisé la base de données MNIST qui contient 60000 images pour l'entrainement du modèle ainsi que 10000 images pour tester le modèle entrainé.
+
+Lors de l'entrainement du modèle, nous calculions toutes les 1000 itérations une erreur sur un échantillon de 100 images toutes tirées aléatoirement. A partir de ces 100 images nous calulions pour chacune son erreur. Ainsi nous avions une erreur totale (voir figure ci dessous) qui diminuait au cours du temps.
+
+<img src="./Part4/generatedPlots/data_readme/ErrorCalcul.PNG"/>
+
+A partir du calcul de l'erreur totale toutes les 1000 itérations, nous avons obtenu un graphe d'erreurs totales qui diminue jusqu'à atteindre la barre des 80% pour environ 200000 itérations.
+
+<img src="./Part4/generatedPlots/data_readme/evolution_error_200k.png"/>
+
+Au bout des 200000 itérations d'entrainement, nous avons donc testé notre modèle sur la base de données de test (10000 images qui sont inconnues pour le modèle entrainé). Ainsi, sur ces 10000 images, le taux de reconnaissance final obtenu est d'environ 91%
+
+<img src="./Part4/generatedPlots/data_readme/errorValue_200k.PNG"/>
+
+### Tests réalisés sur le modèle
+
+Il a été remarqué qu'avec un entrainement du modèle avec 200000 itérations, il était possible d'atteindre un taux de reconnaissance des images de test de 91%. Ainsi des tests ont été effectués pour voir si un entrainement plus long pourrait contribuer à de meilleures performance.
+Des tests ont été menés avec des nombres d'itérations beaucoup plus élevés pour voir le comportement de l'erreur.
+
+Par exemple sur 2 millions d'itérations, nous avons pu remarquer que l'erreur totale oscillait entre 80% et 87%. Donc l'évolution était plus constante que décroissante. Lors du test du modèle, nous avons remarqué que le taux de reconnaissance (91.2%) était lui aussi très proche des résultats obtenus ci-dessus.
+
+<img src="./Part4/generatedPlots/data_readme/evolution_error_2M.png"/>
+
+C'est pourquoi nous avons choisi de tenter à nouveau notre chance sur un entrainement à 20 millions d'itérations avec une condition d'arrêt (si l'erreur est inférieure à 78%) qui n'a jamais été atteinte. Après ces 20 millions d'itérations, confronter le modèle entrainé à la base de tests nous a révélé que le taux de reconnaissance n'avait que très peu changé pour atteindre les 91.5% de reconnaissance.
+
+<img src="./Part4/generatedPlots/data_readme/evolution_error_20M.png"/>
+<img src="./Part4/generatedPlots/data_readme/errorValue_20M.PNG"/>
+
+Le meilleur score sera obtenu avec un modèle entrainé sur 10 millions d'itérations où le taux de reconnaissance sur les 10000 images de la base de tests aura été de 92%.
+
+<img src="./Part4/generatedPlots/data_readme/errorValue_10M.PNG"/>
+
+### Problèmes de performances rencontrés
+
+<!-- Les graphes ci-dessus ont été générés à partir de 1000 tests avec un bruitage de 10%. <br>
+Nous pouvons remarquer que le bruitage de 10% vient altérer la détection des différents nombres.<br>
+<br>
+Par ailleurs, après analyse des graphes ci-dessus, nous pouvons remarquer que certains nombres se recoupent logiquement comme : -->
+
+
+
 
 <!-- ### Les valeurs des 10 ouptuts du modèle après entrainement
 
