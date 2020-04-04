@@ -22,10 +22,10 @@ EPSILON = 1
 
 NB_IMG_TRAIN = 60000
 NB_IMG_TEST = 10000
-RATES = [0.86, 0.83, 0.78]
-RATE_ERROR_MIN = 0.8
+RATES = [0.86, 0.83, 0.81]
+RATE_ERROR_MIN = 0.79
 TEST_NB = 10000
-MAX_ITERATION_TRAIN = 200000
+MAX_ITERATION_TRAIN = 20000000
 
 FILES_TRAIN = './samples/train-images-idx3-ubyte/train-images.idx3-ubyte'
 LABELS_TRAIN = './samples/train-labels-idx1-ubyte/train-labels.idx1-ubyte'
@@ -389,8 +389,8 @@ def launchLearningPart(cpt, weightTab):
                     updateEpsilon(0.001)
                     epsilonUpdate += 1
 
-                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalError, RATES, RATE_ERROR_MIN)
-                # print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalError, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
+                # print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalError, RATES, RATE_ERROR_MIN)
+                print(cpt,EPSILON, NB_IMG_TRAIN, " -> ",totalError, RATES, RATE_ERROR_MIN, TEST_NB, MAX_ITERATION_TRAIN)
                 checkError = 0
 
         if (cpt % 1000 == 0):
