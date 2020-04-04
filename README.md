@@ -160,7 +160,7 @@ weightL2 += EPSILON *  Xh * sigmaI
 Beaucoup plus performante, cette seconde étape montrait tout de même des signes de fragilité qui pouvaient facilement s'expliquer par le fait qu'on redimentionnait à chaque fois SigmaI et Xh en matrice de 100*784. Cette génération entrainait aussi des potentielles pertes de performance.
 
 C'est pourquoi nous avons décidé l'utiliser l'outil de transposition de numpy afin de ne pas avoir à redimentionner sigmaI ce qui fut à nouveau un gain de temps incroyable pour les temps de performance.<br>
-Le temps utilisé pour cette seconde étape était : **0.0006s / image** (ce qui équivaut à **0.6 seconde pour 1000 images**)
+Le temps utilisé pour cette dernière étape était : **0.0006s / image** (ce qui équivaut à **0.6 seconde pour 1000 images**)
 
 ```python
 import numpy as np
