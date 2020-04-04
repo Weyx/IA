@@ -111,21 +111,64 @@ Le meilleur score sera obtenu avec un modèle entrainé sur 10 millions d'itéra
 
 ### Problèmes de performances rencontrés
 
-<!-- Les graphes ci-dessus ont été générés à partir de 1000 tests avec un bruitage de 10%. <br>
-Nous pouvons remarquer que le bruitage de 10% vient altérer la détection des différents nombres.<br>
-<br>
-Par ailleurs, après analyse des graphes ci-dessus, nous pouvons remarquer que certains nombres se recoupent logiquement comme : -->
+Ce cours d'intelligence artificiel a débuté avec l'entrainement d'un modèle sur 2 images (0.txt et 1.txt) puis nous sommes passés à l'entrainement d'un modèle sur 10 images (0 à 9). Jusque là, le code pouvait être "sale", nos machines performantes ne semblaient pas rencontrer de problèmes de performance lors de l'entrainement du modèle.
+Lors du passage d'une base de données de 10 images à 60000, l'optimisation du code à tout de suite pris de l'importance.
+
+Mon premier objectif pour cette dernière partie était d'obtenir un modèle qui tourne et qui puisse apprendre quelque soit son optimisation. Pour vérifier son fonctionnement je le faisais travailler sur les 100 premières images de la base de données fournie (celle de 60000 images). Après avoir vérifier le bon fonctionnement du code, j'ai choisi de travailler non plus sur 100 images mais bel et bien sur les 60000 images de la base de données et c'est là que les problèmes sont apparus. LE MODELE ETAIT TRES LONG LORS DE L'APPRENTISSAGE !!
+
+J'ai donc commencé à m'intéresser à l'optimisation du code en utilisant tout simplement des calculs des temps d'exécution (voir code ci-dessous). Ces temps d'exécution m'ont permis de rapidement comprendre les endroits du code les plus lents à s'exécuter.
+
+```python
+import time
+tic = time.perf_counter()
+# Code dont nous voulons calculer le temps d'exécution (par exemple le traitement d'une image dans son intégralité)
+toc = time.perf_counter()
+print(f"1 image => {toc - tic:0.4f} seconds")
+```
+
+Il semble logique que sur des matrices 100 * 784 et 10 * 100, les calculs matriciels (mal codés) peuvent vite engendrer de grosses pertes de temps. J'ai repéré ainsi les endroits les plus critiques et nous allons étudier ici la partie de l'**apprentissage** (concernant la plus grosse matrice : 100 * 784) qui était pour moi la plus lente dans le code.
+
+### Etude du cas de l'optimisation du code lors de l'apprentissage de la matrice 100*784
+
+#### Etape 1 - les deux boucles for sur une matrice 100*784
+Le code initial était une double boucle qui parcourait les 78400 cases de la matrices afin de les mettre à jour. L'utilisation des boucles for pour le calcul matriciel sur de tels matrices n'est pas très conseillé pour des questions de performances.
+Le temps utilisé pour cette première étape était :**0.07s / image** (ce qui équivaut à 70 secondes pour 1000 images)
+
+```python
+for i in range(len(sigmaI)):
+    for h in range(len(Xh)):
+        weightL2[i][h] += EPSILON * sigmaI[i] * Xh[h]
+```
+
+#### Etape 2 - L'utilisation de numpy
+Ainsi m'est venu l'idée d'utiliser la fameuse librairie *numpy* très connue pour ses calculs matriciels optimisés et pour éviter le problème ci-dessus des boucles for qui parcourent lentement toute la matrice.
+
+Le code ci-dessous permet ainsi de refaire comme le code de l'étape 1 mais en beaucoup plus rapide.
+Ici, nous créons avec numpy 2 matrices de tailles 100\*764 de même taille  que weightL2 et on applique finalement la formule (voir dernière ligne du code ci-dessous) pour mettre à jour le tableau des poids.
+Le temps utilisé pour cette seconde étape était :**0.0056s / image** (ce qui équivaut à 5.6 secondes pour 1000 images)
+
+```python
+import numpy as np
+XhSize = len(Xh)
+Xh = np.tile(Xh, (len(sigmaI),1))
+sigmaI = np.array(XhSize*[sigmaI])
+sigmaI = np.swapaxes(sigmaI, 0, 1)
+weightL2 += EPSILON *  Xh * sigmaI
+```
+
+#### Etape 3 - Utilisation plus maligne de numpy
+Beaucoup plus performante, cette seconde étape montrait tout de même des signes de fragilité qui pouvaient facilement s'expliquer par le fait qu'on redimentionnait à chaque fois SigmaI et Xh en matrice de 100*784. Cette génération entrainait aussi des potentielles pertes de performance.
+C'est pourquoi nous avons décidé l'utiliser l'outil de transposition de numpy afin de ne pas avoir à redimentionner sigmaI ce qui fut à nouveau un gain de temps incroyable pour les temps de performance.
+Le temps utilisé pour cette seconde étape était :**0.0006s / image** (ce qui équivaut à 0.6 seconde pour 1000 images)
+
+```python
+import numpy as np
+Xh = np.tile(Xh, (len(sigmaI),1))
+weightL2 += EPSILON *  Xh * np.transpose(np.array([sigmaI,]))
+```
+
+L'optimisation du code de l'apprentissage (que vous pourrez retrouver dans le code) s'arrête là pour cette partie et nous a permis de gagner énormément de temps pour les tests et donc de pouvoir faire des entrainements sur plusieurs millions d'itéations (jusqu'à 20 millions).
 
 
-
-
-<!-- ### Les valeurs des 10 ouptuts du modèle après entrainement
-
-<img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/data_readme/9nb_gathered.png"/>
-
-### Remarques
-
-- Voici le modèle après entrainement pour chaque nombre
-- Une tendance très nuancé se dégage pour chaque nombre
-- Nous pouvons remarquer quel le N°9 est en ambiguité avec le n°6
-- Ce modèle ne fait que peu de fautes et semble bien robuste pour la reconnaissance des nombres de 0 à 9 -->
+#### Conclusion de l'optimisation de cette partie
+L'optimisation est un domaine qui doit toucher tout bon développeur et particulièrement ceux issus comme nous de l'informatique embarquée où les capacités des produits sur lesquels nous seront amenés à travailler sont très réduites. Il est donc important de garder à l'esprit qu'optimiser son code est primordiale pour gagner en efficacité et ne pas perdre de temps inutilement.
