@@ -131,7 +131,7 @@ Il semble logique que sur des matrices 100 * 784 et 10 * 100, les calculs matric
 ### Etude du cas de l'optimisation du code lors de l'apprentissage de la matrice 100*784
 
 #### Etape 1 - les deux boucles for sur une matrice 100*784
-Le code initial était une double boucle qui parcourait les 78400 cases de la matrices afin de les mettre à jour. L'utilisation des boucles for pour le calcul matriciel sur de tels matrices n'est pas très conseillé pour des questions de performances.
+Le code initial était une double boucle qui parcourait les 78400 cases de la matrices afin de les mettre à jour. L'utilisation des boucles for pour le calcul matriciel sur de tels matrices n'est pas très conseillé pour des questions de performances.<br>
 Le temps utilisé pour cette première étape était : **0.07s / image** (ce qui équivaut à **70 secondes pour 1000 images**)
 
 ```python
@@ -143,8 +143,8 @@ for i in range(len(sigmaI)):
 #### Etape 2 - L'utilisation de numpy
 Ainsi m'est venu l'idée d'utiliser la fameuse librairie *numpy* très connue pour ses calculs matriciels optimisés et pour éviter le problème ci-dessus des boucles for qui parcourent lentement toute la matrice.
 
-Le code ci-dessous permet ainsi de refaire comme le code de l'étape 1 mais en beaucoup plus rapide.
-Ici, nous créons avec numpy 2 matrices de tailles 100\*764 de même taille  que weightL2 et on applique finalement la formule (voir dernière ligne du code ci-dessous) pour mettre à jour le tableau des poids.
+Le code ci-dessous permet ainsi de refaire comme le code de l'étape 1 mais en beaucoup plus rapide.<br>
+Ici, nous créons avec numpy 2 matrices de tailles 100\*764 de même taille  que weightL2 et on applique finalement la formule (voir dernière ligne du code ci-dessous) pour mettre à jour le tableau des poids.<br>
 Le temps utilisé pour cette seconde étape était : **0.0056s / image** (ce qui équivaut à **5.6 secondes pour 1000 images**)
 
 ```python
@@ -158,7 +158,8 @@ weightL2 += EPSILON *  Xh * sigmaI
 
 #### Etape 3 - Utilisation plus maligne de numpy
 Beaucoup plus performante, cette seconde étape montrait tout de même des signes de fragilité qui pouvaient facilement s'expliquer par le fait qu'on redimentionnait à chaque fois SigmaI et Xh en matrice de 100*784. Cette génération entrainait aussi des potentielles pertes de performance.
-C'est pourquoi nous avons décidé l'utiliser l'outil de transposition de numpy afin de ne pas avoir à redimentionner sigmaI ce qui fut à nouveau un gain de temps incroyable pour les temps de performance.
+
+C'est pourquoi nous avons décidé l'utiliser l'outil de transposition de numpy afin de ne pas avoir à redimentionner sigmaI ce qui fut à nouveau un gain de temps incroyable pour les temps de performance.<br>
 Le temps utilisé pour cette seconde étape était : **0.0006s / image** (ce qui équivaut à **0.6 seconde pour 1000 images**)
 
 ```python
@@ -173,10 +174,10 @@ L'optimisation du code de l'apprentissage (que vous pourrez retrouver dans le co
 #### Conclusion de l'optimisation de cette partie
 L'optimisation est un domaine qui doit toucher tout bon développeur et particulièrement ceux issus comme nous de l'informatique embarquée où les capacités des produits sur lesquels nous seront amenés à travailler sont très réduites. Il est donc important de garder à l'esprit qu'optimiser son code est primordiale pour gagner en efficacité et ne pas perdre de temps inutilement.
 
-Cette optimisation nous a permis de pouvoir tester notre modèle avec un nombre d'itérations très important (plusieurs millions) afin de voir l'évolution ou non du modèle entrainé.
+Cette optimisation nous a permis de pouvoir tester notre modèle avec un nombre d'itérations très important (plusieurs millions) afin de voir l'évolution ou non du modèle entrainé.<br>
 Malheureusement, cette évolution n'a pas eu lieu et nous sommes restés à un taux de reconnaissance toujours aux alentours de 91% de la base de test.
 
-Bilan personnel :
-Ce cours extrêmement intéressant m'a permis d'une part de faire mes premiers pas en IA et de très bien comprendre le fonctionnement des réseaux de neurones. La construction intégrale de nos propres réseaux de neurones était un bon moyen de bien comprendre leur fonctionnement.
-Par ailleurs, la partie 4 du projet nous a permis de nous confronter directement aux problèmes de performance du code nous obligeant ainsi à optimiser le code en utilisant la librairie *numpy* très utile pour les calculs matriciels.
+Bilan personnel :<br>
+Ce cours extrêmement intéressant m'a permis d'une part de faire mes premiers pas en IA et de très bien comprendre le fonctionnement des réseaux de neurones. La construction intégrale de nos propres réseaux de neurones était un bon moyen de bien comprendre leur fonctionnement.<br>
+Par ailleurs, la partie 4 du projet nous a permis de nous confronter directement aux problèmes de performance du code nous obligeant ainsi à optimiser le code en utilisant la librairie *numpy* très utile pour les calculs matriciels.<br>
 Je remercie ainsi Monsieur Pierre Andry pour son professionnalisme et sa capacité à délivrer un cours de très bonne qualité aux élèves d'INEM.
