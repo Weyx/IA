@@ -101,9 +101,9 @@ L'objectif ici était d'entrainer un réseau de neurones composée de 3 couches 
 
 Nous avons ainsi utilisé la base de données MNIST qui contient 60000 images pour l'entrainement du modèle ainsi que 10000 images pour tester le modèle entrainé.
 
-Lors de l'entrainement du modèle, nous calculions toutes les 1000 itérations une erreur sur un échantillon de 100 images toutes tirées aléatoirement. A partir de ces 100 images nous calulions pour chacune son erreur. Ainsi nous avions une erreur totale (voir figure ci dessous) qui diminuait au cours du temps.
-
 Concernant EPSILON, nous le faisions varier de telle sorte à optimiser la vitesse d'apprentissage. Au départ nous le fixions à 1 puis on le divisait par 10 à chaque fois qu'un pallier était atteint par l'erreur totale.
+
+Lors de l'entrainement du modèle, nous calculions toutes les 1000 itérations une erreur sur un échantillon de 100 images toutes tirées aléatoirement. A partir de ces 100 images nous calulions pour chacune son erreur. Ainsi nous avions une erreur totale (voir figure ci dessous) qui diminuait au cours du temps.
 
 <img src="./Part4/generatedPlots/data_readme/ErrorCalcul.PNG"/>
 
