@@ -34,14 +34,23 @@ Le graphe ci-dessous montre bien l'évolution de l'erreur au cours du temps avec
 - A partir de 200 itérations, le modèle est quasi parfait pour être utilisé
 - Le modèle est arrêté quand son err < 10⁻⁶, sans cette étape d'arrêt, le modèle partirait dans une boucle infinie sans jamais atteindre un erreur égale à 0
 
+Après l'entrainement du modèle, nous choisissons de tester notre modèle avec différents niveaux de bruitage (similaire aux tests de la partie 1).
+
 <img src="./Part-2-Widrow-Hoff/generatedPlots/Widrow-Hoff.png"/>
 
 ### Remarques
 
+- Représentation de l'évolution de l'erreur selon différents niveaux de bruitage
 - Modèle entrainé beaucoup plus robuste et fiable que le précédent
 - Jusqu'à 20% de bruitage, le modèle ne commet aucune erreur
 
 ## TD1 - Partie 3 : Widrow-Hoff (généralisation sur 10 classes : de 0 à 9)
+
+Pour cette avant dernière partie, nous faisons évoluer notre base de données initiale de 2 à 10 classes correspondants aux nombres de 0 à 9. Le tableau des poids sera ici amené à évoluer en 10*48:
+- 48 neurones d'entrée pour les pixels de chaque images (8 * 6 pixels)
+- 10 neurones de sortie pour chaque classe représentée
+
+Le graphe ci-dessous représente le calcul de l'erreur totale du modèle lors de son entrainement. La condition d'arrêt est *erreur < 10⁻⁶*. Nous aurions pu choisir une erreur un peu plus grande comme 0.01 mais le choix de cette valeur nous a permis d'obtenir des taux de reconnaissance des 10 nombres de bonne qualité.
 
 <img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/data_readme/learningCurve.png"/>
 
@@ -49,7 +58,7 @@ Le graphe ci-dessous montre bien l'évolution de l'erreur au cours du temps avec
 
 - Evolution de l'erreur du modèle au cours de son apprentissage
 - A partir de 2500 itérations, le modèle est quasi parfait pour être utilisé
-- Le modèle est arrêté quand son err < 10⁻⁶, sans cette étape d'arrêt, le modèle partirait dans une boucle infinie (arrêté à la 142916ème itération)
+- Le modèle est arrêté quand son err < 10⁻⁶ (arrêté à la 142916ème itération); sans cette étape d'arrêt, le modèle partirait dans une boucle infinie
 - Valeurs utilisées : Epsilon : 0.01 et Theta : 0.5
 
 ### Problème rencontré
@@ -93,6 +102,8 @@ L'objectif ici était d'entrainer un réseau de neurones composée de 3 couches 
 Nous avons ainsi utilisé la base de données MNIST qui contient 60000 images pour l'entrainement du modèle ainsi que 10000 images pour tester le modèle entrainé.
 
 Lors de l'entrainement du modèle, nous calculions toutes les 1000 itérations une erreur sur un échantillon de 100 images toutes tirées aléatoirement. A partir de ces 100 images nous calulions pour chacune son erreur. Ainsi nous avions une erreur totale (voir figure ci dessous) qui diminuait au cours du temps.
+
+Concernant EPSILON, nous le faisions varier de telle sorte à optimiser la vitesse d'apprentissage. Au départ nous le fixions à 1 puis on le divisait par 10 à chaque fois qu'un pallier était atteint par l'erreur totale.
 
 <img src="./Part4/generatedPlots/data_readme/ErrorCalcul.PNG"/>
 
