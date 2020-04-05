@@ -2,7 +2,16 @@
 
 ---
 
-## TD1 - Question 1
+Pour ce long TD d'Intelligence Artificielle, le choix du langage Python s'est imposé pour plus de simplicité et plus d'aisance pour ma part.
+
+## TD1 - Partie 1
+
+Pour notre introduction à l'IA, nous allons construire un premier réseau de neurone:
+- Couche d'entrée de 48 neurones car nous travaillons sur des images de 8*6 pixels
+- Couche de sortie d'un unique neurone qui dira lors des tests si l'image était un 0 ou un 1
+
+Le but ici est donc d'entrainer le modèle avec une base de données composée uniquement de 2 images (0.txt et 1.txt). Pour chaque itération d'entrainement, nous vérifions si oui ou non le modèle est capable de reconnaitre un 0 et un 1 (ceci est notre condition d'arrêt pour l'apprentissage du modèle).<br>
+Dès que le modèle est entrainé (il faut entre 4 et 10 itérations en moyenne pour l'entrainement), nous passons à la phase de test du modèle avec un bruitage qui va augmenter petit à petit (voir graphique ci-dessous).
 
 <img src="./Part-1/generatedPlots/test.png"/>
 
@@ -10,8 +19,12 @@
 
 - Le modèle entrainé commet très peu d'erreurs avec un bruit < 30%
 - L'utilisation de ce modèle n'est donc plus fiable à partir d'un buitage > 30%
+- Les tests sont effectués sur chaque pourcentage (de 0 à 100%) avec pour chacun 100 images bruitées (prises aléatoirement entre 0.txt et 1.txt)
 
-## TD1 - Question 2 : Widrow-Hoff (sur uniquement 2 classes : 0 et 1)
+## TD1 - Partie 2 : Widrow-Hoff (sur uniquement 2 classes : 0 et 1)
+
+Lors de cette seconde partie, nous avons conserver un apprentissage sur uniquement 2 classes mais ce qui a évolué par rapport à la première partie est le calcul de l'erreur qui doit au cours de l'apprentissage diminuer jusqu'à atteindre très petit (sans toucher le 0).<br>
+Le graphe ci-dessous montre bien l'évolution de l'erreur au cours du temps avec en abscisse le nombre d'itérations et en ordonnée l'erreur en pourcentage.
 
 <img src="./Part-2-Widrow-Hoff/generatedPlots/LearningCurve.png"/>
 
@@ -19,7 +32,7 @@
 
 - Evolution de l'erreur du modèle au cours de son apprentissage
 - A partir de 200 itérations, le modèle est quasi parfait pour être utilisé
-- Le modèle est arrêté quand son err < 10⁻⁶, sans cette étape d'arrêt, le modèle partirait dans une boucle infinie
+- Le modèle est arrêté quand son err < 10⁻⁶, sans cette étape d'arrêt, le modèle partirait dans une boucle infinie sans jamais atteindre un erreur égale à 0
 
 <img src="./Part-2-Widrow-Hoff/generatedPlots/Widrow-Hoff.png"/>
 
@@ -28,7 +41,7 @@
 - Modèle entrainé beaucoup plus robuste et fiable que le précédent
 - Jusqu'à 20% de bruitage, le modèle ne commet aucune erreur
 
-## TD1 - Question 3 : Widrow-Hoff (généralisation sur 10 classes : de 0 à 9)
+## TD1 - Partie 3 : Widrow-Hoff (généralisation sur 10 classes : de 0 à 9)
 
 <img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/data_readme/learningCurve.png"/>
 
