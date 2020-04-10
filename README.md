@@ -2,7 +2,7 @@
 
 ---
 
-Pour ce long TD d'Intelligence Artificielle, le choix du langage Python s'est imposé pour plus de simplicité et plus d'aisance pour ma part.
+Pour ce long TD d'Intelligence Artificielle, le choix du langage Python s'est imposé pour plus de simplicité et plus d'aisance.
 
 ## TD1 - Partie 1
 
@@ -18,12 +18,12 @@ Dès que le modèle est entrainé (il faut entre 4 et 10 itérations en moyenne 
 ### Remarques
 
 - Le modèle entrainé commet très peu d'erreurs avec un bruit < 30%
-- L'utilisation de ce modèle n'est donc plus fiable à partir d'un buitage > 30%
+- L'utilisation de ce modèle n'est donc plus fiable à partir d'un bruitage > 30%
 - Les tests sont effectués sur chaque pourcentage (de 0 à 100%) avec pour chacun 100 images bruitées (prises aléatoirement entre 0.txt et 1.txt)
 
 ## TD1 - Partie 2 : Widrow-Hoff (sur uniquement 2 classes : 0 et 1)
 
-Lors de cette seconde partie, nous avons conserver un apprentissage sur uniquement 2 classes mais ce qui a évolué par rapport à la première partie est le calcul de l'erreur qui doit au cours de l'apprentissage diminuer jusqu'à atteindre très petit (sans toucher le 0).<br>
+Lors de cette seconde partie, nous avons conservé un apprentissage sur uniquement 2 classes mais ce qui a évolué par rapport à la première partie est le calcul de l'erreur qui doit au cours de l'apprentissage diminuer jusqu'à se rapprocher de 0 sans pour autant l'atteindre.<br>
 Le graphe ci-dessous montre bien l'évolution de l'erreur au cours du temps avec en abscisse le nombre d'itérations et en ordonnée l'erreur en pourcentage.
 
 <img src="./Part-2-Widrow-Hoff/generatedPlots/LearningCurve.png"/>
@@ -32,7 +32,7 @@ Le graphe ci-dessous montre bien l'évolution de l'erreur au cours du temps avec
 
 - Evolution de l'erreur du modèle au cours de son apprentissage
 - A partir de 200 itérations, le modèle est quasi parfait pour être utilisé
-- Le modèle est arrêté quand son err < 10⁻⁶, sans cette étape d'arrêt, le modèle partirait dans une boucle infinie sans jamais atteindre un erreur égale à 0
+- Le modèle est arrêté quand son *erreur < 10⁻⁶*; sans cette étape d'arrêt, le modèle partirait dans une boucle infinie sans jamais pouvoir atteindre une erreur égale à 0
 
 Après l'entrainement du modèle, nous choisissons de tester notre modèle avec différents niveaux de bruitage (similaire aux tests de la partie 1).
 
@@ -50,21 +50,21 @@ Pour cette avant dernière partie, nous faisons évoluer notre base de données 
 - 48 neurones d'entrée pour les pixels de chaque images (8 * 6 pixels)
 - 10 neurones de sortie pour chaque classe représentée
 
-Le graphe ci-dessous représente le calcul de l'erreur totale du modèle lors de son entrainement. La condition d'arrêt est *erreur < 10⁻⁶*. Nous aurions pu choisir une erreur un peu plus grande comme 0.01 mais le choix de cette valeur nous a permis d'obtenir des taux de reconnaissance des 10 nombres de bonne qualité.
+Le graphe ci-dessous représente le calcul de l'erreur totale du modèle lors de son entrainement. La condition d'arrêt est *erreur < 10⁻⁶*. Nous aurions pu choisir une erreur un peu plus grande comme 0.01 mais le choix de cette valeur nous a permis d'obtenir des taux de reconnaissance des 10 nombres de bonnes qualités.
 
 <img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/data_readme/learningCurve.png"/>
 
 ### Remarques
 
 - Evolution de l'erreur du modèle au cours de son apprentissage
-- A partir de 2500 itérations, le modèle est quasi parfait pour être utilisé
-- Le modèle est arrêté quand son err < 10⁻⁶ (arrêté à la 142916ème itération); sans cette étape d'arrêt, le modèle partirait dans une boucle infinie
+- A partir de 25000 itérations, le modèle est quasi parfait pour être utilisé
+- Le modèle est arrêté quand son *erreur < 10⁻⁶* (arrêté à la 142916ème itération); sans cette étape d'arrêt, le modèle partirait dans une boucle infinie
 - Valeurs utilisées : Epsilon : 0.01 et Theta : 0.5
 
 ### Problème rencontré
 
 Le modèle fonctionnait parfaitement bien jusqu'au nombre 8 et permettait un apprentissage rapide et fiable.
-Lors de l'ajout du nombre 9, l'apprentissage était très long et l'erreur variait beaucoup sans vraiment se rapprocher d'une erreur à 10⁻⁶ demandé (condition d'arrêt); Nous étions dans le cas d'une boucle infinie.
+Lors de l'ajout du nombre 9, l'apprentissage était très long et l'erreur variait beaucoup sans vraiment se rapprocher d'une erreur à 10⁻⁶ demandé (condition d'arrêt). Nous étions dans le cas d'une boucle infinie.
 
 <img src="./Part-3-Widrow-Hoff-10nb/generatedPlots/data_readme/9_changement.png"/>
 
@@ -94,16 +94,16 @@ Par ailleurs, après analyse des graphes ci-dessus, nous pouvons remarquer que c
 
 ## Partie 4 - MNIST modèle
 
-L'objectif ici était d'entrainer un réseau de neurones composée de 3 couches dont une cachées :
-- 1ère couche (input) de 784 neurones car on utilise des images de 28*28 neurones
+Pour cette dernière partie, l'objectif était d'entrainer un réseau de neurones composée de 3 couches dont une cachée :
+- 1ère couche (input) de 784 neurones car on utilise des images de 28*28 pixels
 - 2ème couche (cachée) de 100 neurones
 - 3ème couche (output) de 10 neurones représentant ainsi nos 10 classes (de 0 à 9)
 
 Nous avons ainsi utilisé la base de données MNIST qui contient 60000 images pour l'entrainement du modèle ainsi que 10000 images pour tester le modèle entrainé.
 
-Concernant EPSILON, nous le faisions varier de telle sorte à optimiser la vitesse d'apprentissage. Au départ nous le fixions à 1 puis on le divisait par 10 à chaque fois qu'un pallier était atteint par l'erreur totale.
+Concernant EPSILON, nous le faisions varier de telle sorte à optimiser la vitesse d'apprentissage. Au départ, nous le fixions à 1 puis on le divisait par 10 à chaque fois qu'un pallier était atteint par l'erreur totale (le plus petit epsilon utilisé était 0.0001).
 
-Lors de l'entrainement du modèle, nous calculions toutes les 1000 itérations une erreur sur un échantillon de 100 images toutes tirées aléatoirement. A partir de ces 100 images nous calulions pour chacune son erreur. Ainsi nous avions une erreur totale (voir figure ci dessous) qui diminuait au cours du temps.
+Lors de l'entrainement du modèle, nous calculions toutes les 1000 itérations une erreur sur un échantillon de 100 images toutes tirées aléatoirement. A partir de ces 100 images, nous calulions pour chacune son erreur. Ainsi nous avions une erreur totale (voir graphe ci-dessous) qui diminuait au cours du temps.
 
 <img src="./Part4/generatedPlots/data_readme/ErrorCalcul.PNG"/>
 
@@ -138,9 +138,9 @@ Le meilleur score sera obtenu avec un modèle entrainé sur 10 millions d'itéra
 Ce cours d'intelligence artificiel a débuté avec l'entrainement d'un modèle sur 2 images (0.txt et 1.txt) puis nous sommes passés à l'entrainement d'un modèle sur 10 images (0 à 9). Jusque là, le code pouvait être "sale", nos machines performantes ne semblaient pas rencontrer de problèmes de performance lors de l'entrainement du modèle.
 Lors du passage d'une base de données de 10 images à 60000, l'optimisation du code à tout de suite pris de l'importance.
 
-Mon premier objectif pour cette dernière partie était d'obtenir un modèle qui tourne et qui puisse apprendre quelque soit son optimisation. Pour vérifier son fonctionnement je le faisais travailler sur les 100 premières images de la base de données fournie (celle de 60000 images). Après avoir vérifier le bon fonctionnement du code, j'ai choisi de travailler non plus sur 100 images mais bel et bien sur les 60000 images de la base de données et c'est là que les problèmes sont apparus. LE MODELE ETAIT TRES LONG LORS DE L'APPRENTISSAGE !!
+Mon premier objectif pour cette dernière partie était d'obtenir un modèle qui tourne et qui puisse apprendre quelque soit son optimisation. Pour vérifier son fonctionnement je le faisais travailler sur les 100 premières images de la base de données fournie (celle de 60000 images). Après avoir vérifier le bon fonctionnement du code, j'ai choisi de travailler non plus sur 100 images mais bel et bien sur les 60000 images de la base de données et c'est là que les problèmes sont apparus. LE MODELE ETAIT TRES LENT LORS DE L'APPRENTISSAGE !!
 
-J'ai donc commencé à m'intéresser à l'optimisation du code en utilisant tout simplement des calculs des temps d'exécution (voir code ci-dessous). Ces temps d'exécution m'ont permis de rapidement comprendre les endroits du code les plus lents à s'exécuter.
+J'ai donc commencé à m'intéresser à l'optimisation du code en utilisant tout simplement des calculs des temps d'exécution (voir code ci-dessous). Ils m'ont permis de rapidement comprendre les endroits du code les plus lents à s'exécuter.
 
 ```python
 import time
@@ -155,7 +155,7 @@ Il semble logique que sur des matrices 100 * 784 et 10 * 100, les calculs matric
 ### Etude du cas de l'optimisation du code lors de l'apprentissage de la matrice 100*784
 
 #### Etape 1 - les deux boucles for sur une matrice 100*784
-Le code initial était une double boucle qui parcourait les 78400 cases de la matrices afin de les mettre à jour. L'utilisation des boucles for pour le calcul matriciel sur de tels matrices n'est pas très conseillé pour des questions de performances.<br>
+Le code initial était une double boucle qui parcourait les 78400 cases de la matrices afin de les mettre à jour. L'utilisation des boucles for pour le calcul matriciel sur de telles matrices n'est pas très conseillé pour des questions de performance.<br>
 Le temps utilisé pour cette première étape était : **0.07s / image** (ce qui équivaut à **70 secondes pour 1000 images**)
 
 ```python
@@ -181,7 +181,7 @@ weightL2 += EPSILON *  Xh * sigmaI
 ```
 
 #### Etape 3 - Utilisation plus maligne de numpy
-Beaucoup plus performante, cette seconde étape montrait tout de même des signes de fragilité qui pouvaient facilement s'expliquer par le fait qu'on redimentionnait à chaque fois SigmaI et Xh en matrice de 100*784. Cette génération entrainait aussi des potentielles pertes de performance.
+Beaucoup plus performante, cette seconde étape montrait tout de même des signes de fragilité qui pouvaient facilement s'expliquer par le fait qu'on redimentionnait à chaque fois SigmaI et Xh en matrice de 100*784. Cette génération entrainait ainsi de potentielles pertes de performance.
 
 C'est pourquoi nous avons décidé l'utiliser l'outil de transposition de numpy afin de ne pas avoir à redimentionner sigmaI ce qui fut à nouveau un gain de temps incroyable pour les temps de performance.<br>
 Le temps utilisé pour cette dernière étape était : **0.0006s / image** (ce qui équivaut à **0.6 seconde pour 1000 images**)
@@ -192,7 +192,7 @@ Xh = np.tile(Xh, (len(sigmaI),1))
 weightL2 += EPSILON *  Xh * np.transpose(np.array([sigmaI,]))
 ```
 
-L'optimisation du code de l'apprentissage (que vous pourrez retrouver dans le code) s'arrête là pour cette partie et nous a permis de gagner énormément de temps pour les tests et donc de pouvoir faire des entrainements sur plusieurs millions d'itéations (jusqu'à 20 millions).
+L'optimisation du code de l'apprentissage (que vous pourrez retrouver dans le code) s'arrête là pour cette partie et nous a permis de gagner énormément de temps pour les tests et donc de pouvoir faire des entrainements sur plusieurs millions d'itérations (jusqu'à 20 millions).
 
 
 #### Conclusion de l'optimisation de cette partie
@@ -201,7 +201,7 @@ L'optimisation est un domaine qui doit toucher tout bon développeur et particul
 Cette optimisation nous a permis de pouvoir tester notre modèle avec un nombre d'itérations très important (plusieurs millions) afin de voir l'évolution ou non du modèle entrainé.<br>
 Malheureusement, cette évolution n'a pas eu lieu et nous sommes restés à un taux de reconnaissance toujours aux alentours de 91% de la base de test.
 
-Bilan personnel :<br>
+**Bilan personnel :**<br>
 Ce cours extrêmement intéressant m'a permis d'une part de faire mes premiers pas en IA et de très bien comprendre le fonctionnement des réseaux de neurones. La construction intégrale de nos propres réseaux de neurones était un bon moyen de bien comprendre leur fonctionnement.<br>
 Par ailleurs, la partie 4 du projet nous a permis de nous confronter directement aux problèmes de performance du code nous obligeant ainsi à optimiser le code en utilisant la librairie *numpy* très utile pour les calculs matriciels.<br>
 Je remercie ainsi Monsieur Pierre Andry pour son professionnalisme et sa capacité à délivrer un cours de très bonne qualité aux élèves d'INEM.
